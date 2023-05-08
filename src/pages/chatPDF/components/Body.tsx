@@ -1,6 +1,10 @@
+import Count from "./Count"
+
 const Body = ()=>{
     return (
-        <div></div>
+        <div>
+            <Count />
+        </div>
     )
 } 
 
