@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
 import { fetchCount } from './API'
-import { WhisperAnswerState } from './interface'
+import { WhisperAnswerState, STATUS_TYPE } from './interface'
 
 
 const initialState: WhisperAnswerState = {
-  value: 0,
-  status: 'idle',
+    careerType: undefined,
+    status: STATUS_TYPE.idle,
+    value: 0,
 }
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -51,11 +52,11 @@ export const whisperAnswerSlice = createSlice({
     builder
       .addCase(incrementAsync.pending, (state) => {
         console.log(`loading`)
-        state.status = 'loading'
+        state.status = STATUS_TYPE.loading
       })
       .addCase(incrementAsync.fulfilled, (state, action) => {
         console.log(`fulfilled`)
-        state.status = 'idle'
+        state.status = STATUS_TYPE.fulfilled
         state.value += action.payload
       })
   },
