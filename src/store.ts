@@ -2,7 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
 import { applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import whisperAnswerReducer from './components/whisperAnswer/slice'
+import whisperAnswerReducer from './modules/whisperAnswer/slice'
 
 export function makeStore() {
   return configureStore({

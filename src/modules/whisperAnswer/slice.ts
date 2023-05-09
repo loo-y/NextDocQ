@@ -1,13 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
 import { fetchCount } from './API'
+import { WhisperAnswerState } from './interface'
 
-export interface CounterState {
-  value: number
-  status: 'idle' | 'loading' | 'failed'
-}
 
-const initialState: CounterState = {
+const initialState: WhisperAnswerState = {
   value: 0,
   status: 'idle',
 }

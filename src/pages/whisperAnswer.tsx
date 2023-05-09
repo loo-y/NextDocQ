@@ -1,10 +1,10 @@
 import type { NextPage } from 'next'
-import WhisperAnswerComponent from "../components/whisperAnswer/WhisperAnswer"
+import WhisperAnswerModule from "../modules/whisperAnswer/WhisperAnswer"
 
 const WhisperAnswer: NextPage = () => {
     return (
         <div>
-            <WhisperAnswerComponent />
+            <WhisperAnswerModule />
         </div>
     )
 }
