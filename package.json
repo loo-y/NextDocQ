@@ -7,6 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "eslint": "./node_modules/.bin/eslint \"src/**/*.{js,jsx,ts,tsx}\" --ignore-pattern \"src/lib/\" --ignore-pattern \"src/shared/\"",
+    "check-types": "tsc --noemit",
+    "eslint:commit": "git diff --cached --name-only | grep -E 'src.*\\.[jt]sx?$' | xargs ./node_modules/.bin/eslint --quiet",
+    "eslint:quiet": "./node_modules/.bin/eslint \"src/**/*.{js,jsx,ts,tsx}\" --ignore-pattern \"src/lib/\" --ignore-pattern \"src/shared/\" --quiet",
     "prettier": "./node_modules/.bin/prettier --single-quote --no-semi --trailing-comma es5 --print-width 120 --tab-width 4 --arrow-parens avoid --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "prettier:check": "npm run prettier -- --list-different",
     "lint-staged": "lint-staged"
@@ -14,6 +18,7 @@
   "precommit": "lint-staged",
   "lint-staged": {
     "{src}/**/*.{js,jsx,ts,tsx}": [
+      "npm run eslint:commit",
       "prettier --single-quote --no-semi --trailing-comma es5 --print-width 120 --tab-width 4 --arrow-parens avoid --write  \"!src/lib/**\" \"!src/shared/**\"",
       "git add"
     ]
@@ -24,7 +29,6 @@
     "@types/react": "18.0.37",
     "@types/react-dom": "18.0.11",
     "autoprefixer": "10.4.14",
-    "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "lodash": "^4.17.21",
     "next": "13.3.0",
@@ -39,7 +43,14 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.192",
+    "eslint": "^8.40.0",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-flowtype": "^8.0.3",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "lint-staged": "^13.2.2",
     "pre-commit": "^1.2.2",
     "prettier": "^2.8.8"
