@@ -1,5 +1,5 @@
-import BaseCtrl from "../BaseCtrl"
-import * as actions from "./model"
+import BaseCtrl from '../BaseCtrl'
+import * as actions from './model'
 import store from '../store'
 class ChatPDFController extends BaseCtrl {
     // Model = Model
@@ -7,9 +7,9 @@ class ChatPDFController extends BaseCtrl {
     constructor() {
         super()
     }
-    handleUpdateCount = ()=>{
+    handleUpdateCount = () => {
         actions.UPDATE_COUNT(1)
     }
-};
+}
 
 export default ChatPDFController

@@ -1,7 +1,7 @@
 export interface WhisperAnswerState {
-    careerType?: CAREER_TYPE;
-    status: STATUS_TYPE,
-    value: number,
+    careerType?: CAREER_TYPE
+    status: STATUS_TYPE
+    value: number
 }
 
 export enum STATUS_TYPE {

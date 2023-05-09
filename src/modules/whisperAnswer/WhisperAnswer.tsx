@@ -8,16 +8,14 @@ const WhisperAnswer = () => {
     const [incrementAmount, setIncrementAmount] = useState('2')
 
     return (
-      <div className={styles.body}>
-        <CareerSelection />
-      </div>
+        <div className={styles.body}>
+            <CareerSelection />
+        </div>
     )
-  }
-  
+}
 
-  export default WhisperAnswer
+export default WhisperAnswer
 
-
-export async function getServerSideProps(){
+export async function getServerSideProps() {
     console.log(`getInitialProps`)
-};
+}

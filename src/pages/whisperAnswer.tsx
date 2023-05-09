@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import WhisperAnswerModule from "../modules/whisperAnswer/WhisperAnswer"
+import WhisperAnswerModule from '../modules/whisperAnswer/WhisperAnswer'
 
 const WhisperAnswer: NextPage = () => {
     return (

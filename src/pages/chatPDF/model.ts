@@ -1,13 +1,12 @@
-
-import React, { Dispatch, } from 'react';
-import store from '../store';
+import React, { Dispatch } from 'react'
+import store from '../store'
 export const initialState = {
     count: 0,
-    gender: 'male'
-};
-const name = 'chatPDFStore';
+    gender: 'male',
+}
+const name = 'chatPDFStore'
 
-export const UPDATE_COUNT = (playload: number)=> {
+export const UPDATE_COUNT = (playload: number) => {
     // const state = store.getState().chatPDFStore || {}
     // return {
     //     ...state,
@@ -19,9 +18,9 @@ export const UPDATE_COUNT = (playload: number)=> {
     })
 }
 
-const reducer = (state = initialState, action: {type: string, playload: any})=>{
+const reducer = (state = initialState, action: { type: string; playload: any }) => {
     const { playload, type } = action || {}
-    if(type && playload){
+    if (type && playload) {
         return {
             ...state,
             ...playload,
@@ -30,7 +29,7 @@ const reducer = (state = initialState, action: {type: string, playload: any})=>{
 
     return {
         ...state,
-    };
-};
+    }
+}
 
-export default reducer;
+export default reducer

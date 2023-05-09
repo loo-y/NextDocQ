@@ -1,11 +1,11 @@
-import Count from "./Count"
+import Count from './Count'
 
-const Body = ()=>{
+const Body = () => {
     return (
         <div>
             <Count />
         </div>
     )
-} 
+}
 
 export default Body
