@@ -1,6 +1,11 @@
 import React from 'react'
+import { useAppSelector, useAppDispatch } from '@/hooks'
+import { getWhisperAnswerState } from '../slice'
 
 const CareerSelection = () => {
+    const dispatch = useAppDispatch()
+    const state = useAppSelector(getWhisperAnswerState)
+    console.log(`whisperAnswerState`, state)
     return (
         <div>
             <h1>Career Selection</h1>
