@@ -15,7 +15,7 @@ const model = new OpenAI({
     azureOpenAIApiVersion,
 })
 
-// azure 不支持bestOf
+// @ts-ignore azure 不支持bestOf
 model.bestOf = undefined
 
 export default async function AzureCall(req: NextApiRequest, res: NextApiResponse<any>) {
