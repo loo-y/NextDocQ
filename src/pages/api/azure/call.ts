@@ -8,6 +8,7 @@ const { azureOpenAIApiKey, azureOpenAIApiInstanceName, azureOpenAIApiDeploymentN
 
 const model = new OpenAI({
     temperature: 0.9,
+    modelName: 'gpt-35-turbo',
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
     azureOpenAIApiDeploymentName,
@@ -15,14 +16,19 @@ const model = new OpenAI({
 })
 
 export default async function AzureCall(req: NextApiRequest, res: NextApiResponse<any>) {
+    res.status(200).json({ name: 'John Doe' })
+    console.log(`model===>`, model)
     if (req.method === 'POST') {
-        console.log(req.body)
         const modelResult = await model.call('What would be a good company name a company that makes colorful socks?')
         console.log({ modelResult })
         return res.status(200).json({ modelResult })
     }
     if (req.method === 'GET') {
-        console.log(req.body)
-        return res.status(404)
+        const modelResult = await model.call('What would be a good company name a company that makes colorful socks?', {
+            timeout: 1000,
+        })
+        console.log(`AzureCall--->`, req.body)
+        console.log({ modelResult })
+        return res.status(200).json({ modelResult })
     }
 }
