@@ -15,8 +15,11 @@ const model = new OpenAI({
     azureOpenAIApiVersion,
 })
 
+// azure 不支持bestOf
+model.bestOf = undefined
+
 export default async function AzureCall(req: NextApiRequest, res: NextApiResponse<any>) {
-    res.status(200).json({ name: 'John Doe' })
+    // res.status(200).json({ name: 'John Doe' })
     console.log(`model===>`, model)
     if (req.method === 'POST') {
         const modelResult = await model.call('What would be a good company name a company that makes colorful socks?')
@@ -25,7 +28,7 @@ export default async function AzureCall(req: NextApiRequest, res: NextApiRespons
     }
     if (req.method === 'GET') {
         const modelResult = await model.call('What would be a good company name a company that makes colorful socks?', {
-            timeout: 1000,
+            timeout: 10000,
         })
         console.log(`AzureCall--->`, req.body)
         console.log({ modelResult })
