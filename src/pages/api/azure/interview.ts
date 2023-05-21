@@ -72,7 +72,7 @@ export default async function AzureInterview(req: NextApiRequest, res: NextApiRe
                 input: `${question}`,
             })
 
-            const memoryMessags = await chain.memory.chatHistory.getMessages()
+            const memoryMessags = await memory.chatHistory?.getMessages()
             await storeChatHistoryToRedis(memoryChatKey, memoryMessags)
 
             return res.status(200).json({ response, memoryMessags })
