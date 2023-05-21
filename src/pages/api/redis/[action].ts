@@ -37,10 +37,12 @@ const ActionHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 export default ActionHandler
 export const RedisGet = async (key: string | undefined) => {
     if (!key) return null
-    const data = await upstashRedis.get(key)
+    const data: any = await upstashRedis.get(key)
     return data
 }
-export const RedisSet = async (key: string | undefined, value: string | undefined) => {
+
+type RedisValue = string | any[] | { [index: string]: any } | undefined
+export const RedisSet = async (key: string | undefined, value: RedisValue) => {
     if (!key) return null
     if (!value) return await RedisGet(key)
     const data = await upstashRedis.set(key, value)

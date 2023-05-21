@@ -26,7 +26,7 @@ const params_GPT35Turbo = {
     azureOpenAIApiVersion,
 }
 const modelGPT35Turbo = new OpenAI({
-    temperature: 0.9,
+    temperature: 0.9, // random
     ...params_GPT35Turbo,
     maxTokens: 100,
 })
@@ -34,7 +34,8 @@ const modelGPT35Turbo = new OpenAI({
 modelGPT35Turbo.bestOf = undefined
 
 const modelChatGPT35Turbo = new ChatOpenAI({
-    temperature: 0.9,
+    temperature: 0, // stable
+    topP: 0.3, // some stable
     ...params_GPT35Turbo,
     maxTokens: 100,
 })
@@ -52,7 +53,7 @@ const params_TextDavinci003 = {
 }
 
 const modelTextDavinci003 = new OpenAI({
-    temperature: 0.9,
+    temperature: 0.9, // random
     ...params_TextDavinci003,
     maxTokens: 100,
 })
@@ -60,7 +61,8 @@ const modelTextDavinci003 = new OpenAI({
 modelTextDavinci003.bestOf = undefined
 
 const modelChatTextDavinci003 = new ChatOpenAI({
-    temperature: 0.9,
+    temperature: 0, // stable
+    topP: 0.3, // some stable
     ...params_TextDavinci003,
     maxTokens: 100,
 })
