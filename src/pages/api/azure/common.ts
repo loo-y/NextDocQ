@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { OpenAI } from 'langchain/llms/openai' // azure openai
+import { ChatOpenAI } from 'langchain/chat_models/openai'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -16,28 +17,55 @@ enum AZURE_MODELS {
     TextDavinci003 = `text-davinci-003`,
 }
 
-const modelGPT35Turbo = new OpenAI({
-    temperature: 0.9,
+// *** 👇 GPT35Turbo 👇 ***
+const params_GPT35Turbo = {
     modelName: AZURE_MODELS.GPT35Turbo,
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
     azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_GTP35Turbo,
     azureOpenAIApiVersion,
+}
+const modelGPT35Turbo = new OpenAI({
+    temperature: 0.9,
+    ...params_GPT35Turbo,
     maxTokens: 100,
 })
 // @ts-ignore azure 不支持bestOf
 modelGPT35Turbo.bestOf = undefined
 
-const modelTextDavinci003 = new OpenAI({
+const modelChatGPT35Turbo = new ChatOpenAI({
     temperature: 0.9,
+    ...params_GPT35Turbo,
+    maxTokens: 100,
+})
+// @ts-ignore azure 不支持bestOf
+modelChatGPT35Turbo.bestOf = undefined
+// *** 👆 GPT35Turbo 👆 ***
+
+// *** 👇 TextDavinci003 👇 ***
+const params_TextDavinci003 = {
     modelName: AZURE_MODELS.TextDavinci003,
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
     azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_TextDavinci003,
     azureOpenAIApiVersion,
+}
+
+const modelTextDavinci003 = new OpenAI({
+    temperature: 0.9,
+    ...params_TextDavinci003,
     maxTokens: 100,
 })
 // @ts-ignore azure 不支持bestOf
 modelTextDavinci003.bestOf = undefined
 
-export { modelGPT35Turbo, modelTextDavinci003 }
+const modelChatTextDavinci003 = new ChatOpenAI({
+    temperature: 0.9,
+    ...params_TextDavinci003,
+    maxTokens: 100,
+})
+// @ts-ignore azure 不支持bestOf
+modelChatTextDavinci003.bestOf = undefined
+// *** 👆 TextDavinci003 👆 ***
+
+export { modelGPT35Turbo, modelChatGPT35Turbo, modelTextDavinci003, modelChatTextDavinci003 }
