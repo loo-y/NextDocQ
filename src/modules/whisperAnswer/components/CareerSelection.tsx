@@ -1,11 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
-import { getWhisperAnswerState } from '../slice'
+import { getWhisperAnswerState, updateCareerType } from '../slice'
+import { STATUS_TYPE, CAREER_TYPE } from '../interface'
 
 const CareerSelection = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
+    const { status } = state || {}
     console.log(`whisperAnswerState`, state)
+
+    useEffect(() => {
+        if (status == STATUS_TYPE.idle) {
+            dispatch(updateCareerType(CAREER_TYPE.BackEndDevelop))
+        }
+    }, [status])
     return (
         <div>
             <h1>Career Selection</h1>
