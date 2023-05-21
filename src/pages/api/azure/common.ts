@@ -3,24 +3,25 @@ import { OpenAI } from 'langchain/llms/openai' // azure openai
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-const { azureOpenAIApiKey, azureOpenAIApiInstanceName, azureOpenAIApiDeploymentName, azureOpenAIApiVersion } =
-    process.env || {}
+const {
+    azureOpenAIApiKey,
+    azureOpenAIApiInstanceName,
+    azureOpenAIApiDeployment_GTP35Turbo,
+    azureOpenAIApiDeployment_TextDavinci003,
+    azureOpenAIApiVersion,
+} = process.env || {}
 
 enum AZURE_MODELS {
     GPT35Turbo = `gpt-35-turbo`,
     TextDavinci003 = `text-davinci-003`,
 }
 
-console.log(`AZURE_MODELS`, AZURE_MODELS)
-console.log(AZURE_MODELS.GPT35Turbo)
-console.log(AZURE_MODELS.TextDavinci003)
-
 const modelGPT35Turbo = new OpenAI({
     temperature: 0.9,
     modelName: AZURE_MODELS.GPT35Turbo,
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
-    azureOpenAIApiDeploymentName,
+    azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_GTP35Turbo,
     azureOpenAIApiVersion,
     maxTokens: 100,
 })
@@ -32,7 +33,7 @@ const modelTextDavinci003 = new OpenAI({
     modelName: AZURE_MODELS.TextDavinci003,
     azureOpenAIApiKey,
     azureOpenAIApiInstanceName,
-    azureOpenAIApiDeploymentName,
+    azureOpenAIApiDeploymentName: azureOpenAIApiDeployment_TextDavinci003,
     azureOpenAIApiVersion,
     maxTokens: 100,
 })
