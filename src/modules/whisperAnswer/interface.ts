@@ -14,3 +14,13 @@ export enum CAREER_TYPE {
     BackEndDeveloper = '后端开发工程师',
     UIDesigner = 'UI设计师',
 }
+
+export type AnyObj = {
+    [key: string]: any
+}
+
+export type InterviewParams = {
+    careerType: string
+    question: string
+    memoryChatKey?: string
+}
