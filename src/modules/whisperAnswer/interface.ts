@@ -1,7 +1,13 @@
+export interface SpeechToken {
+    authToken: string
+    region: string
+}
+
 export interface WhisperAnswerState {
     careerType?: CAREER_TYPE
     status: STATUS_TYPE
     value: number
+    speechToken?: SpeechToken
 }
 
 export enum STATUS_TYPE {

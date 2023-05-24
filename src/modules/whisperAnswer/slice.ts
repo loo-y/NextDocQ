@@ -1,13 +1,26 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
-import { fetchCount } from './API'
-import { WhisperAnswerState, STATUS_TYPE, CAREER_TYPE } from './interface'
+import { fetchCount, fetchTokenOrRefresh } from './API'
+import { WhisperAnswerState, STATUS_TYPE, CAREER_TYPE, InterviewParams } from './interface'
 
 const initialState: WhisperAnswerState = {
     careerType: undefined,
     status: STATUS_TYPE.idle,
     value: 0,
+    speechToken: undefined,
 }
+
+export const getSpeechTokenAsync = createAsyncThunk('whisperAnswerSlice/fetchTokenOrRefresh', async () => {
+    const response = await fetchTokenOrRefresh()
+    const { status, authToken, region } = response || {}
+    if (status) {
+        return {
+            authToken,
+            region,
+        }
+    }
+    return undefined
+})
 
 // The function below is called a thunk and allows us to perform async logic. It
 // can be dispatched like a regular action: `dispatch(incrementAsync(10))`. This
@@ -59,6 +72,10 @@ export const whisperAnswerSlice = createSlice({
                 console.log(`fulfilled`)
                 state.status = STATUS_TYPE.fulfilled
                 state.value += action.payload
+            })
+            .addCase(getSpeechTokenAsync.fulfilled, (state, action) => {
+                console.log(`getSpeechTokenAsync.fulfilled`, { action })
+                state.speechToken = action.payload
             })
     },
 })

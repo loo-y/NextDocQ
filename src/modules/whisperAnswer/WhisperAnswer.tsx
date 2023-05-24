@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '../../hooks'
 import CareerSelection from './components/CareerSelection'
 import ChatAnswer from './components/ChatAnswer'
+import SttMic from './components/SttMic'
 import styles from './WhipserAnswer.module.css'
 
 const WhisperAnswer = () => {
@@ -20,6 +21,7 @@ const WhisperAnswer = () => {
                     <br />
                 </div>
                 <CareerSelection />
+                <SttMic />
                 <ChatAnswer />
             </div>
         </div>

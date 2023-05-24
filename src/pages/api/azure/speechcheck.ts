@@ -21,6 +21,7 @@ export default async function AzureSpeechCheck(req: NextApiRequest, res: NextApi
                 'Ocp-Apim-Subscription-Key': azureSpeechKey,
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
+            body: null,
         }
 
         try {
@@ -28,8 +29,14 @@ export default async function AzureSpeechCheck(req: NextApiRequest, res: NextApi
                 `https://${azureSpeechregion}.api.cognitive.microsoft.com/sts/v1.0/issueToken`,
                 params
             )
-            res.send({ token: tokenResponse.data, region: azureSpeechregion })
+            const tokenResponseResult = await tokenResponse.text()
+            if (tokenResponseResult) {
+                res.send({ token: tokenResponseResult, region: azureSpeechregion, tokenResponse })
+            } else {
+                res.status(401).send('There was an error authorizing your speech key. no tokenResponse data')
+            }
         } catch (err) {
+            console.log(`AzureSpeechCheck`, { err })
             res.status(401).send('There was an error authorizing your speech key.')
         }
     }
