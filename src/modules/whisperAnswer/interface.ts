@@ -10,7 +10,7 @@ export enum STATUS_TYPE {
     fulfilled = 'fulfilled',
 }
 export enum CAREER_TYPE {
-    FrontEndWebDeveloper = '前端Web开发工程师',
-    BackEndDevelop = '后端开发工程师',
-    UI = 'UI设计师',
+    FrontEndDeveloper = '前端开发工程师',
+    BackEndDeveloper = '后端开发工程师',
+    UIDesigner = 'UI设计师',
 }
