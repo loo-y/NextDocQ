@@ -1,6 +1,6 @@
 // Speech to text by microphone
 import _ from 'lodash'
-import React, { useEffect, Fragment, useState } from 'react'
+import React, { useEffect, Fragment, useState, useCallback, useMemo } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
 import { getWhisperAnswerState, getSpeechTokenAsync, updateRecording } from '../slice'
 import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk'
@@ -13,10 +13,11 @@ const SttMic = () => {
     const state = useAppSelector(getWhisperAnswerState)
     const { speechToken, recordInfo } = state || {}
     const [triggerMic, setTriggerMic] = useState(false)
+    const [stateRecognizer, setStateRecognizer] = useState(null)
     // console.log(`recordInfo`, recordInfo)
-    useEffect(() => {
-        dispatch(getSpeechTokenAsync())
-    }, [])
+    // useEffect(() => {
+    //     dispatch(getSpeechTokenAsync())
+    // }, [])
 
     let lastRecordingInfo: any = {},
         recordingIdleTimer: any = null
@@ -61,32 +62,56 @@ const SttMic = () => {
     }
 
     useEffect(() => {
-        console.log(`recordInfo`, recordInfo)
-    }, [recordInfo])
-    useEffect(() => {
+        console.log(`triggerMic`, triggerMic)
         if (!speechToken) {
+            console.log(`speechToken, triggerMic`, `noSpeechToken`)
             dispatch(getSpeechTokenAsync())
         } else if (triggerMic) {
             console.log('state.speechToken', speechToken)
-            sttFromMic(speechToken, handleRecording, setTriggerMic)
+            sttFromMic(stateRecognizer, speechToken, handleRecording, (recognizer: any) => {
+                if (recognizer) {
+                    setStateRecognizer(recognizer)
+                }
+                setTriggerMic(false)
+            })
         }
-    }, [speechToken, triggerMic])
+    }, [triggerMic])
+
+    const handleStopMic = useCallback(() => {
+        if (stateRecognizer) {
+            pauseMic(stateRecognizer)
+        }
+    }, [stateRecognizer])
 
     return (
         <div>
-            <label onClick={() => setTriggerMic(true)}>aaaa</label>
+            <label onClick={() => setTriggerMic(true)}>开始面试</label>
+            <label onClick={handleStopMic}>暂停面试</label>
         </div>
     )
 }
 
 export default SttMic
 
-const sttFromMic = async (speechToken: SpeechToken, recording: (arg: any) => void, callback?: (arg: any) => void) => {
+const sttFromMic = async (
+    stateRecognizer: any,
+    speechToken: SpeechToken,
+    recording: (arg: any) => void,
+    callback?: (arg?: any) => void
+) => {
     const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(speechToken.authToken, speechToken.region)
     speechConfig.speechRecognitionLanguage = 'zh-CN'
 
-    const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput()
-    const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig)
+    let recognizer
+    if (!stateRecognizer) {
+        const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput()
+        recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig)
+    } else {
+        recognizer = stateRecognizer
+        recognizer.startContinuousRecognitionAsync()
+        callback && callback()
+        return
+    }
 
     // this.setState({
     //     displayText: 'speak into your microphone...'
@@ -105,7 +130,7 @@ const sttFromMic = async (speechToken: SpeechToken, recording: (arg: any) => voi
     recognizer.startContinuousRecognitionAsync()
 
     if (callback) {
-        callback(false)
+        callback(recognizer)
     }
     // recognizer.recognizeOnceAsync(result => {
     //     let displayText;
@@ -120,4 +145,8 @@ const sttFromMic = async (speechToken: SpeechToken, recording: (arg: any) => voi
     //     });
 
     // });
+}
+
+const pauseMic = async (recognizer: any) => {
+    recognizer.stopContinuousRecognitionAsync()
 }

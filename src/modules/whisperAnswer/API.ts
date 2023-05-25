@@ -24,12 +24,12 @@ export const fetchInterviewAnswer = async (interviewParams: InterviewParams): Pr
     }
     let errorInfo = undefined
     try {
-        // const response = await fetch('/api/azure/interview', {
-        //     ...commonOptions,
-        //     body: JSON.stringify(params),
-        // })
-        // const result = await response.json()
-        const result = interviewResult
+        const response = await fetch('/api/azure/interview', {
+            ...commonOptions,
+            body: JSON.stringify(params),
+        })
+        const result = await response.json()
+        // const result = interviewResult
         return {
             result,
             status: true,

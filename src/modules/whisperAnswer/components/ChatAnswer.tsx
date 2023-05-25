@@ -1,6 +1,6 @@
 import React, { useEffect, Fragment, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
-import { getWhisperAnswerState, getAiAnswerAsync } from '../slice'
+import { getWhisperAnswerState, getAiAnswerAsync, clearRecording } from '../slice'
 import { Disclosure } from '@headlessui/react'
 import { ChevronUpIcon } from '@heroicons/react/20/solid'
 import _ from 'lodash'
@@ -8,11 +8,21 @@ import _ from 'lodash'
 const ChatAnswer = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
-    const { chatList } = state || {}
+    const { chatList, recordInfo } = state || {}
+
+    // useEffect(() => {
+    //     dispatch(getAiAnswerAsync(`ffff`))
+    // }, [])
 
     useEffect(() => {
-        dispatch(getAiAnswerAsync(`ffff`))
-    }, [])
+        console.log(`recordInfo`, recordInfo)
+        const { status, text } = recordInfo || {}
+        if (status === `idle` && text) {
+            dispatch(getAiAnswerAsync(text))
+            dispatch(clearRecording())
+        }
+    }, [recordInfo])
+
     if (_.isEmpty(chatList)) return null
     return (
         <div className="w-full px-4 pt-2">

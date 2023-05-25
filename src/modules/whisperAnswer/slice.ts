@@ -101,6 +101,13 @@ export const whisperAnswerSlice = createSlice({
                 }
             }
         },
+        clearRecording: state => {
+            state.recordInfo = {
+                text: undefined,
+                status: RECORDING_STATUS.idle,
+                recordingText: undefined,
+            }
+        },
         increment: state => {
             // Redux Toolkit allows us to write "mutating" logic in reducers. It
             // doesn't actually mutate the state because it uses the Immer library,
@@ -143,7 +150,8 @@ export const whisperAnswerSlice = createSlice({
     },
 })
 
-export const { updateRecording, increment, decrement, incrementByAmount, updateCareerType } = whisperAnswerSlice.actions
+export const { updateRecording, clearRecording, increment, decrement, incrementByAmount, updateCareerType } =
+    whisperAnswerSlice.actions
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

@@ -10,7 +10,6 @@ import _ from 'lodash'
 const CareerSelection = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
-    const { status } = state || {}
     const { careerType } = state || {}
     // console.log(`whisperAnswerState`, state)
 
