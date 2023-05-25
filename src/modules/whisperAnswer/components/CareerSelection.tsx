@@ -12,7 +12,7 @@ const CareerSelection = () => {
     const state = useAppSelector(getWhisperAnswerState)
     const { status } = state || {}
     const { careerType } = state || {}
-    console.log(`whisperAnswerState`, state)
+    // console.log(`whisperAnswerState`, state)
 
     const careerTypeList = _.map(_.keys(CAREER_TYPE), key => {
         return {

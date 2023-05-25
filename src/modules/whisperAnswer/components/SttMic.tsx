@@ -2,26 +2,73 @@
 import _ from 'lodash'
 import React, { useEffect, Fragment, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
-import { getWhisperAnswerState, getSpeechTokenAsync } from '../slice'
+import { getWhisperAnswerState, getSpeechTokenAsync, updateRecording } from '../slice'
 import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk'
-import { AnyObj, SpeechToken } from '../interface'
+import { AnyObj, SpeechToken, RECORDING_STATUS } from '../interface'
+import { recordingIdleGap } from '../constants'
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
 const SttMic = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
-    const { speechToken } = state || {}
+    const { speechToken, recordInfo } = state || {}
     const [triggerMic, setTriggerMic] = useState(false)
+    // console.log(`recordInfo`, recordInfo)
     useEffect(() => {
         dispatch(getSpeechTokenAsync())
     }, [])
 
+    let lastRecordingInfo: any = {},
+        recordingIdleTimer: any = null
+    const handleRecording = (result: any) => {
+        // console.log(`this is result`, result)
+        const { resultId, text, offset, duration } = result || {}
+        const lastResultoffset = lastRecordingInfo?.offset
+        const lastText = lastRecordingInfo?.text || ``
+        if (!!lastResultoffset && lastResultoffset != offset) {
+            dispatch(
+                updateRecording({
+                    text: lastText,
+                    recordingText: text,
+                    status: RECORDING_STATUS.recorded,
+                })
+            )
+        } else {
+            dispatch(
+                updateRecording({
+                    recordingText: text,
+                    status: RECORDING_STATUS.recording,
+                })
+            )
+        }
+
+        clearTimeout(recordingIdleTimer)
+        recordingIdleTimer = setTimeout(() => {
+            lastRecordingInfo = {}
+            dispatch(
+                updateRecording({
+                    status: RECORDING_STATUS.idle,
+                })
+            )
+        }, recordingIdleGap)
+
+        lastRecordingInfo = {
+            resultId,
+            text,
+            offset,
+            duration,
+        }
+    }
+
+    useEffect(() => {
+        console.log(`recordInfo`, recordInfo)
+    }, [recordInfo])
     useEffect(() => {
         if (!speechToken) {
             dispatch(getSpeechTokenAsync())
         } else if (triggerMic) {
             console.log('state.speechToken', speechToken)
-            sttFromMic(speechToken, setTriggerMic)
+            sttFromMic(speechToken, handleRecording, setTriggerMic)
         }
     }, [speechToken, triggerMic])
 
@@ -34,7 +81,7 @@ const SttMic = () => {
 
 export default SttMic
 
-const sttFromMic = async (speechToken: SpeechToken, callback?: (arg: any) => void) => {
+const sttFromMic = async (speechToken: SpeechToken, recording: (arg: any) => void, callback?: (arg: any) => void) => {
     const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(speechToken.authToken, speechToken.region)
     speechConfig.speechRecognitionLanguage = 'zh-CN'
 
@@ -46,12 +93,16 @@ const sttFromMic = async (speechToken: SpeechToken, callback?: (arg: any) => voi
     // });
 
     recognizer.recognizing = function (s: any, e: AnyObj) {
-        console.log('RECOGNIZING: ' + e.result.text)
-        console.log('Offset in Ticks: ' + e.result.offset)
-        console.log('Duration in Ticks: ' + e.result.duration)
+        // console.log(`this is s`, s)
+        // console.log(`this is e`, e)
+        // console.log('RECOGNIZING: ' + e.result.text)
+        // console.log('Offset in Ticks: ' + e.result.offset)
+        // console.log('Duration in Ticks: ' + e.result.duration)
+        console.log('Duration in Ticks: ', e.result)
+        recording(e?.result)
     }
 
-    // recognizer.startContinuousRecognitionAsync();
+    recognizer.startContinuousRecognitionAsync()
 
     if (callback) {
         callback(false)

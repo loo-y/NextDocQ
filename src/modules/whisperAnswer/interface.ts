@@ -8,8 +8,19 @@ export interface WhisperAnswerState {
     status: STATUS_TYPE
     value: number
     speechToken?: SpeechToken
+    recordInfo: RecordInfo
 }
 
+export interface RecordInfo {
+    status: RECORDING_STATUS
+    text?: string
+    recordingText?: string
+}
+export enum RECORDING_STATUS {
+    idle = 'idle',
+    recording = 'recording',
+    recorded = 'recorded',
+}
 export enum STATUS_TYPE {
     idle = 'idle',
     loading = 'loading',

@@ -1,13 +1,19 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
 import { fetchCount, fetchTokenOrRefresh } from './API'
-import { WhisperAnswerState, STATUS_TYPE, CAREER_TYPE, InterviewParams } from './interface'
+import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, CAREER_TYPE, RecordInfo } from './interface'
+import _ from 'lodash'
 
 const initialState: WhisperAnswerState = {
     careerType: undefined,
     status: STATUS_TYPE.idle,
     value: 0,
     speechToken: undefined,
+    recordInfo: {
+        text: undefined, // text of recorded
+        status: RECORDING_STATUS.idle, // status of recording
+        recordingText: undefined, // text of recording
+    },
 }
 
 export const getSpeechTokenAsync = createAsyncThunk('whisperAnswerSlice/fetchTokenOrRefresh', async () => {
@@ -44,6 +50,28 @@ export const whisperAnswerSlice = createSlice({
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
+        updateRecording: (state, action: PayloadAction<RecordInfo>) => {
+            const { text, status } = action.payload || {}
+            if (status == RECORDING_STATUS.idle) {
+                state.recordInfo = {
+                    ...state.recordInfo,
+                    text: _.compact([state.recordInfo.text, state.recordInfo.recordingText]).join(', '),
+                    recordingText: '',
+                    status,
+                }
+            } else if (status == RECORDING_STATUS.recorded) {
+                state.recordInfo = {
+                    ...state.recordInfo,
+                    text: _.compact([state.recordInfo.text, text]).join(', '),
+                    status,
+                }
+            } else {
+                state.recordInfo = {
+                    ...state.recordInfo,
+                    ...action.payload,
+                }
+            }
+        },
         increment: state => {
             // Redux Toolkit allows us to write "mutating" logic in reducers. It
             // doesn't actually mutate the state because it uses the Immer library,
@@ -80,7 +108,7 @@ export const whisperAnswerSlice = createSlice({
     },
 })
 
-export const { increment, decrement, incrementByAmount, updateCareerType } = whisperAnswerSlice.actions
+export const { updateRecording, increment, decrement, incrementByAmount, updateCareerType } = whisperAnswerSlice.actions
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
