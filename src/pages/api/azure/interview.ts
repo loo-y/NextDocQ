@@ -2,7 +2,7 @@ import _ from 'lodash'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { modelGPT35Turbo, modelChatGPT35Turbo } from './common'
 import { HumanChatMessage, SystemChatMessage, AIChatMessage, BaseChatMessage, MessageType } from 'langchain/schema'
-import { BaseMemory } from 'langchain/memory'
+import { BufferMemory, BaseMemory } from 'langchain/memory'
 import { RedisChatMessageHistory } from 'langchain/stores/message/redis'
 import {
     ChatPromptTemplate,
@@ -10,12 +10,12 @@ import {
     SystemMessagePromptTemplate,
     MessagesPlaceholder,
 } from 'langchain/prompts'
-import { BufferMemory } from 'langchain/memory'
 import { ConversationChain } from 'langchain/chains'
 import { RedisGet, RedisSet } from '../redis/[action]'
 
 export default async function AzureInterview(req: NextApiRequest, res: NextApiResponse<any>) {
     let careerType, question, memoryChatKey
+    const questionTimestamp = new Date().getTime()
     if (req.method === 'POST') {
         const body = req?.body || {}
         careerType = body.careerType || careerType
@@ -56,10 +56,13 @@ export default async function AzureInterview(req: NextApiRequest, res: NextApiRe
                 humanChatMessage,
             ])
 
+            let redisChatMessages: any = []
             let memory = new BufferMemory({ returnMessages: true, memoryKey: memoryHistory })
             // try to restore memory chatHistory from redis
             if (memoryChatKey) {
-                memory = await updateChatHistoryFromRedis(memoryChatKey, memory)
+                const infoFromRedis = await updateChatHistoryFromRedis(memoryChatKey, memory)
+                memory = infoFromRedis.memory
+                redisChatMessages = infoFromRedis.redisChatMessages || redisChatMessages
             }
 
             let chain = new ConversationChain({
@@ -72,25 +75,48 @@ export default async function AzureInterview(req: NextApiRequest, res: NextApiRe
                 input: `${question}`,
             })
 
-            const memoryMessags = await memory.chatHistory?.getMessages()
-            await storeChatHistoryToRedis(memoryChatKey, memoryMessags)
+            const aiAnswer = response?.response
+            if (aiAnswer) {
+                // const memoryMessags = await memory.chatHistory?.getMessages()
+                // const memoryMessagsWithInfo: {type: MessageType, chatInfo: BaseChatMessage}[] = _.isEmpty(memoryMessags) ? [] : _.map(memoryMessags, chatMessage => {
+                //     return {
+                //         // MessageType: "human" | "ai" | "generic" | "system"
+                //         type: chatMessage?._getType() || undefined,
+                //         chatInfo: chatMessage,
+                //     }
+                // })
 
-            return res.status(200).json({ response, memoryMessags })
+                const memoryChatMessages: { ai: string; human: string; timestamp: number }[] = _.concat(
+                    redisChatMessages,
+                    [
+                        {
+                            ai: aiAnswer,
+                            human: question,
+                            timestamp: questionTimestamp,
+                        },
+                    ]
+                )
+                await storeChatHistoryToRedis(memoryChatKey, memoryChatMessages)
+
+                return res.status(200).json({ answer: aiAnswer, memoryChatKey, memoryMessags: memoryChatMessages })
+            }
         } catch (e) {
             console.log(`AzureInterview`, { e })
-            return res.status(500).json({ e })
+            return res.status(200).json({ error: e, memoryChatKey })
         }
     }
-    return res.status(200).json({ body: req.body, query: req.query })
+    return res.status(200).json({ answer: ``, memoryChatKey })
 }
 
-const storeChatHistoryToRedis = async (memoryChatKey: string, chatMessages: BaseChatMessage[]) => {
+const storeChatHistoryToRedis = async (
+    memoryChatKey: string,
+    chatMessages: { ai: string; human: string; timestamp: number }[]
+) => {
     if (!memoryChatKey || _.isEmpty(chatMessages)) return
 
     const redisChatMessages = _.map(chatMessages, chatMessage => {
         return {
-            type: chatMessage?._getType() || undefined, // MessageType: "human" | "ai" | "generic" | "system"
-            chatInfo: chatMessage,
+            ...chatMessage,
         }
     })
 
@@ -98,29 +124,18 @@ const storeChatHistoryToRedis = async (memoryChatKey: string, chatMessages: Base
 }
 
 const updateChatHistoryFromRedis = async (memoryChatKey: string, memory: BufferMemory) => {
-    if (!memoryChatKey) return memory
+    if (!memoryChatKey) return { memory }
 
     const redisChatMessages = await RedisGet(memoryChatKey)
-    if (_.isEmpty(redisChatMessages)) return memory
+    if (_.isEmpty(redisChatMessages)) return { memory }
 
     _.map(redisChatMessages, redisChatMessage => {
-        const { type, chatInfo } = redisChatMessage || {}
-        const { text } = chatInfo || {}
-        if (text) {
-            if (type === 'human') {
-                // return new HumanChatMessage(chatInfo?.text)
-                memory.chatHistory.addUserMessage(text)
-            }
-            if (type === 'ai') {
-                // return new AIChatMessage(chatInfo?.text)
-                memory.chatHistory.addAIChatMessage(text)
-            }
-            // if(type === 'system'){
-            //     return new SystemChatMessage(chatInfo?.text)
-            // }
-            // return new HumanChatMessage(chatInfo?.text)
+        const { ai, human } = redisChatMessage || {}
+        if (ai && human) {
+            memory.chatHistory.addUserMessage(human)
+            memory.chatHistory.addAIChatMessage(ai)
         }
     })
 
-    return memory
+    return { memory, redisChatMessages }
 }

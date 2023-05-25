@@ -6,11 +6,19 @@ export interface SpeechToken {
 export interface WhisperAnswerState {
     careerType?: CAREER_TYPE
     status: STATUS_TYPE
+    memoryChatKey?: string
     value: number
     speechToken?: SpeechToken
     recordInfo: RecordInfo
+
+    chatList?: ChatItem[]
 }
 
+export interface ChatItem {
+    ai: string
+    human: string
+    timestamp: number
+}
 export interface RecordInfo {
     status: RECORDING_STATUS
     text?: string

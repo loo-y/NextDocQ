@@ -1,7 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
-import { fetchCount, fetchTokenOrRefresh } from './API'
-import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, CAREER_TYPE, RecordInfo } from './interface'
+import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer } from './API'
+import {
+    WhisperAnswerState,
+    STATUS_TYPE,
+    RECORDING_STATUS,
+    CAREER_TYPE,
+    RecordInfo,
+    InterviewParams,
+} from './interface'
 import _ from 'lodash'
 
 const initialState: WhisperAnswerState = {
@@ -9,6 +16,7 @@ const initialState: WhisperAnswerState = {
     status: STATUS_TYPE.idle,
     value: 0,
     speechToken: undefined,
+    memoryChatKey: new Date().getTime().toString(),
     recordInfo: {
         text: undefined, // text of recorded
         status: RECORDING_STATUS.idle, // status of recording
@@ -16,6 +24,27 @@ const initialState: WhisperAnswerState = {
     },
 }
 
+export const getAiAnswerAsync = createAsyncThunk(
+    'whisperAnswerSlice/fetchInterviewAnswer',
+    async (question: string, { getState, extra }: any) => {
+        const whisperAnswerState: WhisperAnswerState = getWhisperAnswerState(getState())
+        console.log(`whisperAnswerState`, whisperAnswerState)
+        const {
+            // careerType,
+            memoryChatKey,
+        } = whisperAnswerState || {}
+        const response = await fetchInterviewAnswer({
+            question,
+            careerType: 'web front end developer',
+            memoryChatKey,
+        })
+        const { status, result, error } = response || {}
+        if (status && !_.isEmpty(result)) {
+            return result
+        }
+        return {}
+    }
+)
 export const getSpeechTokenAsync = createAsyncThunk('whisperAnswerSlice/fetchTokenOrRefresh', async () => {
     const response = await fetchTokenOrRefresh()
     const { status, authToken, region } = response || {}
@@ -104,6 +133,12 @@ export const whisperAnswerSlice = createSlice({
             .addCase(getSpeechTokenAsync.fulfilled, (state, action) => {
                 console.log(`getSpeechTokenAsync.fulfilled`, { action })
                 state.speechToken = action.payload
+            })
+            .addCase(getAiAnswerAsync.fulfilled, (state, action) => {
+                const { memoryMessags } = action.payload || {}
+                if (!_.isEmpty(memoryMessags)) {
+                    state.chatList = _.orderBy(memoryMessags, ['timestamp'], ['desc'])
+                }
             })
     },
 })
