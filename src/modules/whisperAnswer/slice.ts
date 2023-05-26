@@ -22,6 +22,7 @@ const initialState: WhisperAnswerState = {
         status: RECORDING_STATUS.idle, // status of recording
         recordingText: undefined, // text of recording
     },
+    chatList: [],
 }
 
 export const getAiAnswerAsync = createAsyncThunk(
@@ -80,6 +81,7 @@ export const whisperAnswerSlice = createSlice({
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
         updateRecording: (state, action: PayloadAction<RecordInfo>) => {
+            const { chatList } = state || {}
             const { text, status } = action.payload || {}
             if (status == RECORDING_STATUS.idle) {
                 state.recordInfo = {

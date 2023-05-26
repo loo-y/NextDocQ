@@ -4,29 +4,59 @@ import { getWhisperAnswerState, getAiAnswerAsync, clearRecording } from '../slic
 import { Disclosure } from '@headlessui/react'
 import { ChevronUpIcon } from '@heroicons/react/20/solid'
 import _ from 'lodash'
+import { RECORDING_STATUS } from '../interface'
 
 const ChatAnswer = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
     const { chatList, recordInfo } = state || {}
-
+    const { status: recordInfoStatus } = recordInfo || {}
     // useEffect(() => {
     //     dispatch(getAiAnswerAsync(`ffff`))
     // }, [])
 
+    const [recordInfoChat, setRecordInfoChat] = useState([])
     useEffect(() => {
         console.log(`recordInfo`, recordInfo)
-        const { status, text } = recordInfo || {}
-        if (status === `idle` && text) {
-            dispatch(getAiAnswerAsync(text))
+        const { status, text: recordInfoText, recordingText } = recordInfo || {}
+        // TODO 这里需要改成消息队列，等待上一个消息返回后再发送下一个
+        if (status === `idle` && recordInfoText) {
+            dispatch(getAiAnswerAsync(recordInfoText))
             dispatch(clearRecording())
+            // @ts-ignore
+            setRecordInfoChat([
+                {
+                    ai: '',
+                    human: recordInfoText,
+                    timestamp: _.now(),
+                },
+            ])
+        } else {
+            if (recordInfoText || recordingText) {
+                // @ts-ignore
+                setRecordInfoChat([
+                    {
+                        ai: '',
+                        human: _.compact([recordInfoText, recordingText]).join(', '),
+                        timestamp: _.now(),
+                    },
+                ])
+            }
         }
     }, [recordInfo])
 
-    if (_.isEmpty(chatList)) return null
+    useEffect(() => {
+        // @ts-ignore
+        if (chatList[0]?.human == recordInfoChat[0]?.human) {
+            setRecordInfoChat([])
+        }
+    }, [chatList])
+
+    const showList = _.concat(recordInfoChat, chatList)
+    if (_.isEmpty(showList)) return null
     return (
         <div className="">
-            {_.map(chatList, (item, index) => {
+            {_.map(showList, (item, index) => {
                 const { ai, human, timestamp } = item || {}
                 return (
                     <>
@@ -44,12 +74,12 @@ const ChatAnswer = () => {
                                             className={`${open ? 'rotate-180 transform' : ''} h-5 w-5 text-purple-500`}
                                         />
                                     </Disclosure.Button>
-                                    {ai ? (
+                                    {ai || recordInfoStatus == RECORDING_STATUS.recording ? (
                                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
                                             {ai}
                                         </Disclosure.Panel>
                                     ) : (
-                                        <div className="mt-2 w-full relative">
+                                        <div className="mt-2 w-full relative h-6">
                                             <div className="w-5 h-5 absolute top-0 translate-x-2/4 right-1/2">
                                                 <svg
                                                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-violet-400"

@@ -11,7 +11,7 @@ import SttMic from './SttMic'
 const CareerSelection = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
-    const { careerType } = state || {}
+    const { careerType } = state
     // console.log(`whisperAnswerState`, state)
 
     const careerTypeList = _.map(_.keys(CAREER_TYPE), key => {

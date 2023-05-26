@@ -11,7 +11,7 @@ export interface WhisperAnswerState {
     speechToken?: SpeechToken
     recordInfo: RecordInfo
 
-    chatList?: ChatItem[]
+    chatList: ChatItem[]
 }
 
 export interface ChatItem {
