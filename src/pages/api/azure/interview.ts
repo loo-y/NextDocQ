@@ -12,6 +12,7 @@ import {
 } from 'langchain/prompts'
 import { ConversationChain } from 'langchain/chains'
 import { RedisGet, RedisSet } from '../redis/[action]'
+import { checkCareer } from '../careerlist'
 
 export default async function AzureInterview(req: NextApiRequest, res: NextApiResponse<any>) {
     let careerType, question, memoryChatKey
@@ -31,10 +32,14 @@ export default async function AzureInterview(req: NextApiRequest, res: NextApiRe
         memoryChatKey = query.m || memoryChatKey
     }
 
+    careerType = careerType && decodeURIComponent(careerType)
+    question = question && decodeURIComponent(question)
+    // const careerText = await checkCareer(careerType)
+    // TODO if(careerText && qustion)
     if (careerType && question) {
         try {
-            careerType = decodeURIComponent(careerType)
-            question = decodeURIComponent(question)
+            // careerType = decodeURIComponent(careerType)
+            // question = decodeURIComponent(question)
             // const systemChatMessage = new SystemChatMessage(
             //     `you are an interviewee, the job is ${careerType}. I am interviewer. now you start answer my question.`
             // )

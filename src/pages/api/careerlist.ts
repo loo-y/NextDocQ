@@ -6,13 +6,30 @@ import { RedisGet } from './redis/[action]'
 import _ from 'lodash'
 
 const CareerList = async (req: NextApiRequest, res: NextApiResponse) => {
-    const careerList = await RedisGet(`careerList`)
-    if (_.isEmpty(careerList)) return res.status(200).json({ careerList: defaultCareerList })
+    const careerList = await getCareerList()
 
     return res.status(200).json({ careerList })
 }
 
 export default CareerList
+
+const getCareerList = async () => {
+    let careerList: any[] = []
+    try {
+        careerList = await RedisGet(`careerList`)
+    } catch (e) {}
+
+    if (_.isEmpty(careerList)) return defaultCareerList
+
+    return careerList
+}
+
+export const checkCareer = async (careerId: string) => {
+    if (!careerId) return false
+    const careerList = await getCareerList()
+    const career = _.find(careerList, { id: careerId })
+    return career?.text || false
+}
 
 const defaultCareerList: any[] = [
     {
