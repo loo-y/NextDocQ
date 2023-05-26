@@ -72,7 +72,7 @@ const SttMic = () => {
                 if (recognizer) {
                     setStateRecognizer(recognizer)
                 }
-                setTriggerMic(false)
+                // setTriggerMic(false)
             })
         }
     }, [triggerMic])
@@ -80,13 +80,50 @@ const SttMic = () => {
     const handleStopMic = useCallback(() => {
         if (stateRecognizer) {
             pauseMic(stateRecognizer)
+            setTriggerMic(false)
         }
     }, [stateRecognizer])
 
     return (
-        <div>
-            <label onClick={() => setTriggerMic(true)}>开始面试</label>
-            <label onClick={handleStopMic}>暂停面试</label>
+        <div className="w-10 inline-block text-right">
+            <div
+                onClick={() => {
+                    triggerMic ? handleStopMic() : setTriggerMic(true)
+                }}
+                className="mt-2 inline-block w-6 cursor-pointer align-bottom"
+            >
+                {triggerMic ? (
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                ) : (
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+                        />
+                    </svg>
+                )}
+            </div>
         </div>
     )
 }

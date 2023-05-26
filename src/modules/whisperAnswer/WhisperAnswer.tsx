@@ -20,9 +20,13 @@ const WhisperAnswer = () => {
                     </div>
                     <br />
                 </div>
-                <CareerSelection />
-                <SttMic />
-                <ChatAnswer />
+                <div className="w-full px-4 pt-4">
+                    <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-2">
+                        <CareerSelection />
+                        {/* <SttMic /> */}
+                        <ChatAnswer />
+                    </div>
+                </div>
             </div>
         </div>
     )
