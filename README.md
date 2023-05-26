@@ -9,7 +9,7 @@
 |Azure Real-time Speech-to-text|实时监听麦克风获取面试官的语音提问，并转为文本|--|
 |upstash Redis|用于保存当前对话的上下文，以及访问者每次面试的记录|--|
   
-初期使用，需要创建一个.env 文件，并且将 .env.example 内示例环境变量拷贝至 .env 并填入自己真实的API Key
+初次使用，需要创建一个.env 文件，并且将 .env.example 内示例环境变量拷贝至 .env 并填入自己真实的API Key
 
 ```bash
 mv .env.example .env

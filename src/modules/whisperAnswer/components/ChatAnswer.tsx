@@ -9,7 +9,7 @@ import { RECORDING_STATUS } from '../interface'
 const ChatAnswer = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getWhisperAnswerState)
-    const { chatList, recordInfo } = state || {}
+    const { chatList, recordInfo } = state
     const { status: recordInfoStatus } = recordInfo || {}
     // useEffect(() => {
     //     dispatch(getAiAnswerAsync(`ffff`))
@@ -23,8 +23,9 @@ const ChatAnswer = () => {
         if (status === `idle` && recordInfoText) {
             dispatch(getAiAnswerAsync(recordInfoText))
             dispatch(clearRecording())
-            // @ts-ignore
+
             setRecordInfoChat([
+                // @ts-ignore
                 {
                     ai: '',
                     human: recordInfoText,
@@ -33,8 +34,8 @@ const ChatAnswer = () => {
             ])
         } else {
             if (recordInfoText || recordingText) {
-                // @ts-ignore
                 setRecordInfoChat([
+                    // @ts-ignore
                     {
                         ai: '',
                         human: _.compact([recordInfoText, recordingText]).join(', '),
