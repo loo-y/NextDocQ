@@ -4,6 +4,7 @@ export interface SpeechToken {
 }
 
 export interface WhisperAnswerState {
+    requestInQueueFetching: boolean
     careerList: CareerItem[]
     selectedCareer?: CareerItem
     status: STATUS_TYPE

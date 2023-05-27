@@ -19,7 +19,7 @@ const ChatAnswer = () => {
     useEffect(() => {
         console.log(`recordInfo`, recordInfo)
         const { status, text: recordInfoText, recordingText } = recordInfo || {}
-        // TODO 这里需要改成消息队列，等待上一个消息返回后再发送下一个
+        // TODO 这里已实现接口消息队列，但还没实现在接口未返回前，保留上一次recordInfoText的信息
         if (status === `idle` && recordInfoText) {
             dispatch(getAiAnswerAsync(recordInfoText))
             dispatch(clearRecording())
