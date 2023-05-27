@@ -7,7 +7,6 @@ import styles from './WhipserAnswer.module.css'
 
 const WhisperAnswer = () => {
     const dispatch = useAppDispatch()
-    const [incrementAmount, setIncrementAmount] = useState('2')
 
     return (
         <div className={styles.body}>
