@@ -4,6 +4,7 @@ export interface SpeechToken {
 }
 
 export interface WhisperAnswerState {
+    careerList: CareerItem[]
     careerType?: CAREER_TYPE
     status: STATUS_TYPE
     memoryChatKey?: string
@@ -48,4 +49,10 @@ export type InterviewParams = {
     careerType: string
     question: string
     memoryChatKey?: string
+}
+
+export type CareerItem = {
+    name: string
+    text: string
+    id: string
 }

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
-import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer } from './API'
+import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer, fetchCareerList } from './API'
 import {
     WhisperAnswerState,
     STATUS_TYPE,
@@ -8,10 +8,12 @@ import {
     CAREER_TYPE,
     RecordInfo,
     InterviewParams,
+    CareerItem,
 } from './interface'
 import _ from 'lodash'
 
 const initialState: WhisperAnswerState = {
+    careerList: [],
     careerType: undefined,
     status: STATUS_TYPE.idle,
     value: 0,
@@ -24,6 +26,15 @@ const initialState: WhisperAnswerState = {
     },
     chatList: [],
 }
+
+export const getCareerListAsync = createAsyncThunk('whisperAnswerSlice/fetchCareerList', async () => {
+    const response = await fetchCareerList()
+    const { status, careerList, errorInfo } = response || {}
+    if (status && !_.isEmpty(careerList)) {
+        return careerList
+    }
+    return []
+})
 
 export const getAiAnswerAsync = createAsyncThunk(
     'whisperAnswerSlice/fetchInterviewAnswer',
@@ -80,6 +91,19 @@ export const whisperAnswerSlice = createSlice({
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
+        updateServerData: (state, action: PayloadAction<any>) => {
+            if (!_.isEmpty(action.payload)) {
+                state = {
+                    state,
+                    ...action.payload,
+                }
+            }
+        },
+        updateCareerList: (state, action: PayloadAction<CareerItem[]>) => {
+            if (!_.isEmpty(action.payload)) {
+                state.careerList = _.uniqBy(_.concat(state.careerList, action.payload), 'id')
+            }
+        },
         updateRecording: (state, action: PayloadAction<RecordInfo>) => {
             const { chatList } = state || {}
             const { text, status } = action.payload || {}
@@ -149,11 +173,24 @@ export const whisperAnswerSlice = createSlice({
                     state.chatList = _.orderBy(memoryMessags, ['timestamp'], ['desc'])
                 }
             })
+            .addCase(getCareerListAsync.fulfilled, (state, action) => {
+                if (!_.isEmpty(action.payload)) {
+                    state.careerList = action.payload
+                }
+            })
     },
 })
 
-export const { updateRecording, clearRecording, increment, decrement, incrementByAmount, updateCareerType } =
-    whisperAnswerSlice.actions
+export const {
+    updateServerData,
+    updateCareerList,
+    updateRecording,
+    clearRecording,
+    increment,
+    decrement,
+    incrementByAmount,
+    updateCareerType,
+} = whisperAnswerSlice.actions
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
