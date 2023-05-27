@@ -94,3 +94,27 @@ export const fetchCareerList = async (isServer?: boolean) => {
         errorInfo,
     }
 }
+
+export const fetchHello = async () => {
+    let errorInfo
+    try {
+        const response = await fetch('/api/hello', {
+            ...commonOptions,
+        })
+        const result = await response.json()
+        if (result) {
+            return {
+                hello: result,
+                status: true,
+            }
+        }
+    } catch (e) {
+        console.log(`fetchHello`, { error: e })
+        errorInfo = e
+    }
+
+    return {
+        status: false,
+        errorInfo,
+    }
+}
