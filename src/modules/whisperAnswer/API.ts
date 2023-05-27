@@ -77,11 +77,12 @@ export const fetchCareerList = async (isServer?: boolean) => {
         const response = await fetch(url, {
             ...commonOptions,
         })
-        const careerList = await response.json()
-
-        return {
-            careerList,
-            status: true,
+        const result = await response.json()
+        if (result?.careerList) {
+            return {
+                careerList: result.careerList,
+                status: true,
+            }
         }
     } catch (e) {
         console.log(`fetchInterviewAnswer`, { error: e })

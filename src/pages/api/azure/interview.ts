@@ -34,9 +34,10 @@ export default async function AzureInterview(req: NextApiRequest, res: NextApiRe
 
     careerType = careerType && decodeURIComponent(careerType)
     question = question && decodeURIComponent(question)
-    // const careerText = await checkCareer(careerType)
-    // TODO if(careerText && qustion)
-    if (careerType && question) {
+    const careerText = await checkCareer(careerType)
+
+    // if (careerType && question) {
+    if (careerText && question) {
         try {
             // careerType = decodeURIComponent(careerType)
             // question = decodeURIComponent(question)
@@ -51,7 +52,7 @@ export default async function AzureInterview(req: NextApiRequest, res: NextApiRe
             // return res.status(200).json({ modelResult })
 
             const systemChatMessage = SystemMessagePromptTemplate.fromTemplate(
-                `you are an interviewee, the job is ${careerType}. I am interviewer. now you start answer my question.`
+                `you are an interviewee, the job is ${careerText}. I am interviewer. now you start answer my question.`
             )
             const memoryHistory = 'history'
             const humanChatMessage = HumanMessagePromptTemplate.fromTemplate('{input}')
