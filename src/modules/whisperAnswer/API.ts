@@ -1,5 +1,6 @@
 import { AnyObj, InterviewParams } from './interface'
 import Cookie from 'universal-cookie'
+import _ from 'lodash'
 
 const commonOptions = {
     method: 'POST',
@@ -105,6 +106,33 @@ export const fetchHello = async () => {
         if (result) {
             return {
                 hello: result,
+                status: true,
+            }
+        }
+    } catch (e) {
+        console.log(`fetchHello`, { error: e })
+        errorInfo = e
+    }
+
+    return {
+        status: false,
+        errorInfo,
+    }
+}
+
+export const fetchChatList = async ({ memoryChatKey }: { memoryChatKey: string }) => {
+    let errorInfo
+    try {
+        const response = await fetch('/api/chatlist', {
+            ...commonOptions,
+            body: JSON.stringify({
+                memoryChatKey,
+            }),
+        })
+        const result = await response.json()
+        if (!_.isEmpty(result?.chatList)) {
+            return {
+                chatList: result.chatList,
                 status: true,
             }
         }

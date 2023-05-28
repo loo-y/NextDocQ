@@ -1,16 +1,43 @@
-import type { NextPage } from 'next'
+import type { NextPage, GetServerSideProps } from 'next'
 import WhisperAnswerModule from '../modules/whisperAnswer/WhisperAnswer'
 import { fetchCareerList } from '../modules/whisperAnswer/API'
 import { useEffect } from 'react'
-import { useAppDispatch } from '@/hooks'
-import { updateServerData } from '../modules/whisperAnswer/slice'
+import { useAppDispatch, useAppSelector } from '@/hooks'
+import {
+    updateServerDataToState,
+    getWhisperAnswerState,
+    restoreChatListByMemoryKeyAsync,
+} from '../modules/whisperAnswer/slice'
+import { useRouter } from 'next/router'
+import _ from 'lodash'
 
 const WhisperAnswer: NextPage<{ serverSideData: any }, any> = ({ serverSideData }: { serverSideData: any }) => {
     const dispatch = useAppDispatch()
+    const state = useAppSelector(getWhisperAnswerState)
+    const { memoryChatKey } = state || {}
+    const router = useRouter()
     useEffect(() => {
-        console.log(`serverSideData`, serverSideData)
-        dispatch(updateServerData(serverSideData))
+        dispatch(updateServerDataToState(serverSideData))
     }, [serverSideData])
+
+    // add memoryKey in url query
+    useEffect(() => {
+        const { query } = router || {}
+        const { mk } = query || {}
+        console.log(`mk`, mk, memoryChatKey)
+        if (!mk && memoryChatKey) {
+            router.replace({
+                pathname: router.pathname,
+                query: {
+                    ...query,
+                    mk: memoryChatKey,
+                },
+            })
+        }
+        // TODO 这里会多次调用，需要优化
+        dispatch(restoreChatListByMemoryKeyAsync(memoryChatKey))
+    }, [memoryChatKey])
+
     return (
         <div>
             <WhisperAnswerModule />
@@ -20,14 +47,14 @@ const WhisperAnswer: NextPage<{ serverSideData: any }, any> = ({ serverSideData 
 
 export default WhisperAnswer
 
-export async function getServerSideProps() {
+export const getServerSideProps: GetServerSideProps = async context => {
     // Fetch data from external API
     const isServer = true
     const careerListRes = await fetchCareerList(isServer)
     const { careerList, status } = careerListRes || {}
-    console.log(`careerListRes`, careerListRes)
     const serverSideData = {
         careerList: status && careerList,
+        query: context?.query || {},
     }
     // Pass data to the page via props
     return { props: { serverSideData } }

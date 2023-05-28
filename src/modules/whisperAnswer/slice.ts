@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
 import * as API from './API'
-import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer, fetchCareerList, fetchHello } from './API'
+import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer, fetchCareerList, fetchChatList } from './API'
 import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, RecordInfo, ChatItem, CareerItem } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
@@ -21,7 +21,7 @@ const initialState: WhisperAnswerState = {
     status: STATUS_TYPE.idle,
     value: 0,
     speechToken: undefined,
-    memoryChatKey: new Date().getTime().toString(),
+    memoryChatKey: undefined,
     recordInfo: {
         text: undefined, // text of recorded
         status: RECORDING_STATUS.idle, // status of recording
@@ -80,21 +80,24 @@ export const makeApiRequestInQueue = createAsyncThunk(
     }
 )
 
-export const getHelloAsync = createAsyncThunk('whisperAnswerSlice/fetchHello', async (data, { dispatch, getState }) => {
-    dispatch(
-        makeApiRequestInQueue({
-            apiRequest: fetchHello.bind(null),
-            asyncThunk: getHelloAsync,
-        })
-    )
-    // const response = await fetchHello()
-    // const { status, hello, errorInfo } = response || {}
+export const restoreChatListByMemoryKeyAsync = createAsyncThunk(
+    'whisperAnswerSlice/fetchChatList',
+    async (data: any, { dispatch, getState }: any) => {
+        let { memoryChatKey } = data || {}
+        if (!memoryChatKey) {
+            const whisperAnswerState: WhisperAnswerState = getWhisperAnswerState(getState())
+            memoryChatKey = whisperAnswerState?.memoryChatKey
+        }
+        if (!memoryChatKey) return { chatList: [] }
 
-    // if (status && !_.isEmpty(hello)) {
-    //     return hello
-    // }
-    // return ''
-})
+        dispatch(
+            makeApiRequestInQueue({
+                apiRequest: fetchChatList.bind(null, { memoryChatKey }),
+                asyncThunk: restoreChatListByMemoryKeyAsync,
+            })
+        )
+    }
+)
 
 export const getCareerListAsync = createAsyncThunk('whisperAnswerSlice/fetchCareerList', async () => {
     const response = await fetchCareerList()
@@ -185,19 +188,18 @@ export const whisperAnswerSlice = createSlice({
         setRequestInQueueFetching: (state, action: PayloadAction<boolean>) => {
             state.requestInQueueFetching = action.payload
         },
-        updateServerData: (state, action: PayloadAction<any>) => {
+        updateServerDataToState: (state, action: PayloadAction<any>) => {
             if (!_.isEmpty(action.payload)) {
-                // state = {
-                //     ...state,
-                //     sss: {
-                //         ...action.payload,
-                //     }
+                const changedState = {
+                    memoryChatKey: action.payload?.query?.mk || new Date().getTime().toString(),
+                }
+                console.log(`changedState`, changedState)
 
-                // }
-
-                // TODO need to get all data from severside
-                state.careerList = action.payload.careerList
-                console.log(`updateServerData result`, state)
+                return {
+                    ...state,
+                    ...action.payload,
+                    ...changedState,
+                }
             }
         },
         updateCareerList: (state, action: PayloadAction<CareerItem[]>) => {
@@ -286,8 +288,11 @@ export const whisperAnswerSlice = createSlice({
                     state.careerList = action.payload
                 }
             })
-            .addCase(getHelloAsync.fulfilled, (state, action) => {
-                console.log(`getHelloAsync.fulfilled`, { action })
+            .addCase(restoreChatListByMemoryKeyAsync.fulfilled, (state, action) => {
+                console.log(`restoreChatListByMemoryKeyAsync.fulfilled`, { action })
+                if (action.payload && !_.isEmpty(action.payload?.chatList)) {
+                    state.chatList = action.payload.chatList
+                }
             })
             .addCase(makeApiRequestInQueue.pending, (state, action) => {
                 console.log(`makeApiRequestInQueue.pending`, { action })
@@ -300,7 +305,7 @@ export const whisperAnswerSlice = createSlice({
 
 export const {
     updateChatList,
-    updateServerData,
+    updateServerDataToState,
     updateCareerList,
     updateRecording,
     clearRecording,
