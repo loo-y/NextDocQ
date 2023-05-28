@@ -5,6 +5,7 @@ import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer, fetchCareerList,
 import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, RecordInfo, ChatItem, CareerItem } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
+import { sortUniqKey } from './constants'
 
 // define a queue to store api request
 type APIFunc = (typeof API)[keyof typeof API]
@@ -275,10 +276,9 @@ export const whisperAnswerSlice = createSlice({
                 const { status, result, error } = action.payload || {}
                 const { memoryMessags } = result || {}
                 if (!_.isEmpty(memoryMessags)) {
-                    const uniqKey = `timestamp`
                     state.chatList = _.orderBy(
-                        _.uniqBy(_.concat(memoryMessags, state.chatList), uniqKey),
-                        [uniqKey],
+                        _.uniqBy(_.concat(memoryMessags, state.chatList), sortUniqKey),
+                        [sortUniqKey],
                         ['desc']
                     )
                 }
@@ -291,7 +291,7 @@ export const whisperAnswerSlice = createSlice({
             .addCase(restoreChatListByMemoryKeyAsync.fulfilled, (state, action) => {
                 console.log(`restoreChatListByMemoryKeyAsync.fulfilled`, { action })
                 if (action.payload && !_.isEmpty(action.payload?.chatList)) {
-                    state.chatList = action.payload.chatList
+                    state.chatList = _.orderBy(action.payload.chatList, [sortUniqKey], ['desc'])
                 }
             })
             .addCase(makeApiRequestInQueue.pending, (state, action) => {

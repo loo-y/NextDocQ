@@ -90,7 +90,7 @@ const SttMic = () => {
                 onClick={() => {
                     triggerMic ? handleStopMic() : setTriggerMic(true)
                 }}
-                className="mt-2 inline-block w-6 cursor-pointer align-bottom"
+                className="inline-block w-6 cursor-pointer align-bottom"
             >
                 {triggerMic ? (
                     <svg
