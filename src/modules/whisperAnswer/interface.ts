@@ -45,6 +45,7 @@ export type InterviewParams = {
     careerType: string
     question: string
     memoryChatKey?: string
+    timestamp?: number | string
 }
 
 export type CareerItem = {

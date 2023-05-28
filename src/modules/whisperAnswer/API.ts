@@ -85,7 +85,7 @@ export const fetchCareerList = async (isServer?: boolean) => {
             }
         }
     } catch (e) {
-        console.log(`fetchInterviewAnswer`, { error: e })
+        console.log(`fetchCareerList`, { error: e })
         errorInfo = e
     }
 

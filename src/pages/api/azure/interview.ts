@@ -16,20 +16,19 @@ import { checkCareer } from '../careerlist'
 
 export default async function AzureInterview(req: NextApiRequest, res: NextApiResponse<any>) {
     let careerType, question, memoryChatKey
-    const questionTimestamp = new Date().getTime()
+    let questionTimestamp = new Date().getTime()
     if (req.method === 'POST') {
         const body = req?.body || {}
         careerType = body.careerType || careerType
         question = body.question || question
         memoryChatKey = body.memoryChatKey || memoryChatKey
-    }
-    if (req.method === 'GET') {
-        console.log(`req.body`, req.body)
-        console.log(`req.query`, req.query)
+        questionTimestamp = body.timestamp || questionTimestamp
+    } else if (req.method === 'GET') {
         const query = req?.query || {}
         careerType = query.c || careerType
         question = query.q || question
         memoryChatKey = query.m || memoryChatKey
+        questionTimestamp = query.t && Number(query.t) ? Number(query.t) : questionTimestamp
     }
 
     careerType = careerType && decodeURIComponent(careerType)

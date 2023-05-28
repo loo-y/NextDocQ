@@ -19,19 +19,19 @@ const ChatAnswer = () => {
     useEffect(() => {
         console.log(`recordInfo`, recordInfo)
         const { status, text: recordInfoText, recordingText } = recordInfo || {}
-        // TODO 这里已实现接口消息队列，但还没实现在接口未返回前，保留上一次recordInfoText的信息
+        // 这里已实现接口消息队列，以及通过timestamp来对应返回的信息
         if (status === `idle` && recordInfoText) {
             dispatch(getAiAnswerAsync(recordInfoText))
             dispatch(clearRecording())
-
-            setRecordInfoChat([
-                // @ts-ignore
-                {
-                    ai: '',
-                    human: recordInfoText,
-                    timestamp: _.now(),
-                },
-            ])
+            setRecordInfoChat([])
+            // setRecordInfoChat([
+            //     // @ts-ignore
+            //     {
+            //         ai: '',
+            //         human: recordInfoText,
+            //         timestamp: _.now(),
+            //     },
+            // ])
         } else {
             if (recordInfoText || recordingText) {
                 setRecordInfoChat([
@@ -46,12 +46,12 @@ const ChatAnswer = () => {
         }
     }, [recordInfo])
 
-    useEffect(() => {
-        // @ts-ignore
-        if (chatList[0]?.human == recordInfoChat[0]?.human) {
-            setRecordInfoChat([])
-        }
-    }, [chatList])
+    // useEffect(() => {
+    //     // @ts-ignore
+    //     if (chatList[0]?.human == recordInfoChat[0]?.human) {
+    //         setRecordInfoChat([])
+    //     }
+    // }, [chatList])
 
     const showList = _.concat(recordInfoChat, chatList)
     if (_.isEmpty(showList)) return null
@@ -62,7 +62,8 @@ const ChatAnswer = () => {
                 return (
                     <>
                         <Disclosure
-                            defaultOpen={index > 0 ? false : true}
+                            // defaultOpen={index > 0 ? false : true}
+                            defaultOpen={true}
                             key={`answer_${timestamp}`}
                             as="div"
                             className="mt-2"

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
 import * as API from './API'
 import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer, fetchCareerList, fetchHello } from './API'
-import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, RecordInfo, InterviewParams, CareerItem } from './interface'
+import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, RecordInfo, ChatItem, CareerItem } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
 
@@ -114,12 +114,15 @@ export const getAiAnswerAsync = createAsyncThunk(
         if (!selectedCareer?.id) {
             return {}
         }
+        const questionTimestamp = new Date().getTime()
+        dispatch(updateChatList({ chatItem: { human: question, ai: '', timestamp: questionTimestamp } }))
         dispatch(
             makeApiRequestInQueue({
                 apiRequest: fetchInterviewAnswer.bind(null, {
                     question,
                     careerType: selectedCareer.id,
                     memoryChatKey,
+                    timestamp: questionTimestamp,
                 }),
                 asyncThunk: getAiAnswerAsync,
             })
@@ -171,6 +174,14 @@ export const whisperAnswerSlice = createSlice({
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
+        updateChatList: (state, action: PayloadAction<{ chatItem: ChatItem; isRemove?: boolean }>) => {
+            const { chatItem, isRemove } = action.payload || {}
+            if (isRemove) {
+                state.chatList = _.filter(state.chatList, item => item.timestamp !== chatItem.timestamp)
+            } else {
+                state.chatList = _.concat([chatItem], state.chatList)
+            }
+        },
         setRequestInQueueFetching: (state, action: PayloadAction<boolean>) => {
             state.requestInQueueFetching = action.payload
         },
@@ -262,7 +273,12 @@ export const whisperAnswerSlice = createSlice({
                 const { status, result, error } = action.payload || {}
                 const { memoryMessags } = result || {}
                 if (!_.isEmpty(memoryMessags)) {
-                    state.chatList = _.orderBy(memoryMessags, ['timestamp'], ['desc'])
+                    const uniqKey = `timestamp`
+                    state.chatList = _.orderBy(
+                        _.uniqBy(_.concat(memoryMessags, state.chatList), uniqKey),
+                        [uniqKey],
+                        ['desc']
+                    )
                 }
             })
             .addCase(getCareerListAsync.fulfilled, (state, action) => {
@@ -283,6 +299,7 @@ export const whisperAnswerSlice = createSlice({
 })
 
 export const {
+    updateChatList,
     updateServerData,
     updateCareerList,
     updateRecording,
