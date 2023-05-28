@@ -5,6 +5,7 @@ import { Disclosure } from '@headlessui/react'
 import { ChevronUpIcon } from '@heroicons/react/20/solid'
 import _ from 'lodash'
 import { RECORDING_STATUS } from '../interface'
+import ReactMarkdown from 'react-markdown'
 
 const ChatAnswer = () => {
     const dispatch = useAppDispatch()
@@ -77,8 +78,9 @@ const ChatAnswer = () => {
                                         />
                                     </Disclosure.Button>
                                     {ai || recordInfoStatus == RECORDING_STATUS.recording ? (
-                                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
-                                            {ai}
+                                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 overflow-x-scroll">
+                                            {/* {ai} */}
+                                            <ReactMarkdown>{ai}</ReactMarkdown>
                                         </Disclosure.Panel>
                                     ) : (
                                         <div className="mt-2 w-full relative h-6">
