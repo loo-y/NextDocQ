@@ -33,6 +33,16 @@ export const checkCareer = async (careerId: string) => {
 
 const defaultCareerList: any[] = [
     {
+        name: `UI设计师`,
+        text: `UI designer`,
+        id: `ui-designer`,
+    },
+    {
+        name: `产品经理`,
+        text: `product manager`,
+        id: `product-manager`,
+    },
+    {
         name: `前端开发工程师`,
         text: `front end web developer`,
         id: `front-end-developer`,
@@ -41,10 +51,5 @@ const defaultCareerList: any[] = [
         name: `后端开发工程师`,
         text: `back end web developer`,
         id: `back-end-developer`,
-    },
-    {
-        name: `UI设计师`,
-        text: `UI designer`,
-        id: `ui-designer`,
     },
 ]
