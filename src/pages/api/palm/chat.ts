@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { DiscussServiceClient } from '@google-ai/generativelanguage'
+import { GoogleAuth } from 'google-auth-library'
+// const { DiscussServiceClient } = require('@google-ai/generativelanguage')
+// const { GoogleAuth } = require('google-auth-library')
 import * as dotenv from 'dotenv'
 dotenv.config()
-// import  { DiscussServiceClient } from "@google-ai/generativelanguage"
-// import { GoogleAuth } from "google-auth-library"
-const { DiscussServiceClient } = require('@google-ai/generativelanguage')
-const { GoogleAuth } = require('google-auth-library')
 
 const MODEL_NAME = 'models/chat-bison-001'
 const API_KEY = process.env.google_PaLM_API_KEY || ''
@@ -27,7 +27,8 @@ const examples = [
 ]
 const messages = [
     {
-        content: 'what about redux',
+        content:
+            'what about redux, do you have experience of redux? and please tell me more about your experience of react.',
     },
 ]
 
