@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from '@/hooks'
 import { getWhisperAnswerState, getSpeechTokenAsync, updateRecording } from '../slice'
 import { ResultReason } from 'microsoft-cognitiveservices-speech-sdk'
 import { AnyObj, SpeechToken, RECORDING_STATUS } from '../interface'
-import { recordingIdleGap } from '../constants'
+import { recordingIdleGap } from '@/utils/constants'
 const speechsdk = require('microsoft-cognitiveservices-speech-sdk')
 
 const SttMic = () => {

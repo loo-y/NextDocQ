@@ -5,7 +5,7 @@ import { fetchCount, fetchTokenOrRefresh, fetchInterviewAnswer, fetchCareerList,
 import { WhisperAnswerState, STATUS_TYPE, RECORDING_STATUS, RecordInfo, ChatItem, CareerItem } from './interface'
 import _ from 'lodash'
 import type { AsyncThunk } from '@reduxjs/toolkit'
-import { sortUniqKey } from './constants'
+import { sortUniqKey } from '@/utils/constants'
 
 // define a queue to store api request
 type APIFunc = (typeof API)[keyof typeof API]

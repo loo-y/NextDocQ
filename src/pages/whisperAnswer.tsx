@@ -1,5 +1,5 @@
 import type { NextPage, GetServerSideProps } from 'next'
-import WhisperAnswerModule from '../modules/whisperAnswer/WhisperAnswer'
+import WhisperAnswerModule from '@/modules/whisperAnswer'
 import { fetchCareerList } from '../modules/whisperAnswer/API'
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/hooks'
@@ -10,6 +10,8 @@ import {
 } from '../modules/whisperAnswer/slice'
 import { useRouter } from 'next/router'
 import _ from 'lodash'
+import HeaderModule from '@/modules/header'
+import { navigationEnum } from '@/utils/constants'
 
 const WhisperAnswer: NextPage<{ serverSideData: any }, any> = ({ serverSideData }: { serverSideData: any }) => {
     const dispatch = useAppDispatch()
@@ -40,6 +42,7 @@ const WhisperAnswer: NextPage<{ serverSideData: any }, any> = ({ serverSideData 
 
     return (
         <div>
+            <HeaderModule current={navigationEnum.whisperAnswer} />
             <WhisperAnswerModule />
         </div>
     )
