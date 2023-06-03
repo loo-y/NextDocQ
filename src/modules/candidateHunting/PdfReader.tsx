@@ -36,11 +36,13 @@ const PdfReader = (props: PdfReaderProps) => {
     }
 
     return (
-        <div id={`pdfreader`}>
+        <div className="pdfreader inline-block relative">
             <div className="top_line"></div>
             <FileUploader onChange={onFileChange} title={title} />
-            {file ? <PDFButton text={`预览`} handleClick={() => setShowPreview(true)} /> : null}
-            {content ? <PDFButton text={`修改`} handleClick={() => setShowContent(true)} /> : null}
+            <div className="absolute right-2 top-4">
+                {file ? <PDFButton text={`预览`} handleClick={() => setShowPreview(true)} extraClass={''} /> : null}
+                {content ? <PDFButton text={`修改`} handleClick={() => setShowContent(true)} /> : null}
+            </div>
             {file ? (
                 <ModalPreview
                     closeCallback={handlePreviewClose}
@@ -163,11 +165,21 @@ const ControlledCarousel = ({
     )
 }
 
-const PDFButton = ({ text, handleClick }: { text: string; handleClick?: (arg?: any) => void }) => {
+const PDFButton = ({
+    text,
+    handleClick,
+    extraClass,
+}: {
+    text: string
+    extraClass?: string
+    handleClick?: (arg?: any) => void
+}) => {
     return (
         <button
             type="button"
-            className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
+            className={`${
+                extraClass || ''
+            } min-w-[3rem] inline-flex w-full justify-center rounded-md bg-zinc-700 px-0 py-1 text-xs font-semibold text-white shadow-sm hover:bg-zinc-800 sm:ml-3 sm:w-auto`}
             onClick={() => {
                 if (handleClick) {
                     handleClick()

@@ -83,7 +83,7 @@ const ModalPreview = (props: {
                         >
                             <Dialog.Panel className="relative max-w-[80%] max-h-[90%] transform rounded-lg bg-white text-left shadow-xl transition-all sm:my-8">
                                 <div className="bg-white relative px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                                    <div className="sm:flex sm:items-start">
+                                    <div className="sm:flex sm:items-start w-full overflow-scroll">
                                         <div className="text-center sm:text-left">
                                             {title ? (
                                                 <Dialog.Title
@@ -94,9 +94,9 @@ const ModalPreview = (props: {
                                                 </Dialog.Title>
                                             ) : null}
 
-                                            <div className="mt-2 relative max-h-[70vh] max-w-full overflow-scroll">
+                                            <div className="mt-2 relative max-h-[70vh] max-w-full min-w-[50vw]">
                                                 {contentEditable ? (
-                                                    <div className="p-4 w-full h-full bg-slate-300">
+                                                    <div className="p-4 w-full h-full bg-slate-300 min-h-[50vh]">
                                                         <div
                                                             contentEditable={true}
                                                             ref={editorRef}
