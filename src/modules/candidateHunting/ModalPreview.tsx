@@ -1,30 +1,58 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 
 const ModalPreview = (props: {
     children: any
     isOpen?: boolean
+    confirmCallback?: (arg?: any) => void
     closeCallback?: (arg?: any) => void
     title?: string
     showButton?: boolean
+    contentEditable?: boolean
 }) => {
-    const { children, title, showButton, isOpen = false, closeCallback } = props || {}
+    const {
+        children,
+        title,
+        showButton,
+        isOpen = false,
+        contentEditable = false,
+        confirmCallback,
+        closeCallback,
+    } = props || {}
 
     const [open, setOpen] = useState(isOpen)
+
+    const [innerContent, setInnerContent] = useState(children)
+
+    const editorRef = useRef(null)
 
     const cancelButtonRef = useRef(null)
     useEffect(() => {
         setOpen(isOpen)
     }, [isOpen])
 
+    useEffect(() => {
+        if (contentEditable) {
+            setInnerContent(children)
+        }
+    }, [children, contentEditable])
+
+    const handleEditContent = e => {
+        console.log(`handleEditContent`, e.target.innerHTML)
+        setInnerContent(e.target.innerHTML)
+    }
+
     const handleClose = (isClose: boolean) => {
         console.log(`handleClose`, isClose)
-        if (closeCallback) {
-            closeCallback(isClose)
-        } else {
-            setOpen(isClose)
-        }
+        closeCallback ? closeCallback() : setOpen(isClose)
+    }
+
+    const handleConfirm = (isClose: boolean) => {
+        console.log(`handleConfirm`, children)
+        console.log(`editContent`, editorRef.current.innerText)
+
+        confirmCallback && confirmCallback(editorRef.current.innerText)
+        closeCallback ? closeCallback() : setOpen(isClose)
     }
 
     return (
@@ -67,7 +95,19 @@ const ModalPreview = (props: {
                                             ) : null}
 
                                             <div className="mt-2 relative max-h-[70vh] max-w-full overflow-scroll">
-                                                {children}
+                                                {contentEditable ? (
+                                                    <div className="p-4 w-full h-full bg-slate-300">
+                                                        <div
+                                                            contentEditable={true}
+                                                            ref={editorRef}
+                                                            // onInput={handleEditContent}
+                                                            className={'outline-none w-full h-full  p-4'}
+                                                            dangerouslySetInnerHTML={{ __html: innerContent }}
+                                                        ></div>
+                                                    </div>
+                                                ) : (
+                                                    children
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -76,18 +116,18 @@ const ModalPreview = (props: {
                                     <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                                         <button
                                             type="button"
-                                            className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
-                                            onClick={() => setOpen(false)}
+                                            className="inline-flex w-full justify-center rounded-md bg-violet-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-violet-500 sm:ml-3 sm:w-auto"
+                                            onClick={handleConfirm}
                                         >
-                                            Deactivate
+                                            确认
                                         </button>
                                         <button
                                             type="button"
                                             className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                                            onClick={() => setOpen(false)}
+                                            onClick={handleClose}
                                             ref={cancelButtonRef}
                                         >
-                                            Cancel
+                                            取消
                                         </button>
                                     </div>
                                 ) : null}

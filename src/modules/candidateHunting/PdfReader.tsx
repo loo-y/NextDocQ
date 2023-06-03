@@ -39,7 +39,7 @@ const PdfReader = (props: PdfReaderProps) => {
         <div id={`pdfreader`}>
             <div className="top_line"></div>
             <FileUploader onChange={onFileChange} title={title} />
-            <PDFButton text={`预览`} handleClick={() => setShowPreview(true)} />
+            {file ? <PDFButton text={`预览`} handleClick={() => setShowPreview(true)} /> : null}
             {content ? <PDFButton text={`修改`} handleClick={() => setShowContent(true)} /> : null}
             {file ? (
                 <ModalPreview
@@ -58,21 +58,15 @@ const PdfReader = (props: PdfReaderProps) => {
             {content ? (
                 <ModalPreview
                     closeCallback={() => setShowContent(false)}
+                    confirmCallback={newContent => {
+                        console.log(`newContent`, newContent)
+                        contentEditAction(newContent)
+                    }}
                     isOpen={showContent}
                     title={`修改内容`}
-                    children={
-                        <div className="p-4">
-                            <textarea
-                                className="w-full h-96"
-                                value={content}
-                                onChange={e => {
-                                    if (typeof contentEditAction == `function`) {
-                                        contentEditAction(e.target.value)
-                                    }
-                                }}
-                            />
-                        </div>
-                    }
+                    contentEditable={true}
+                    children={content}
+                    showButton={true}
                 />
             ) : null}
         </div>
