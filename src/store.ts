@@ -3,10 +3,11 @@ import { applyMiddleware } from 'redux'
 import thunkMiddleware from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import whisperAnswerReducer from './modules/whisperAnswer/slice'
+import candidateHuntingReducer from './modules/candidateHunting/slice'
 
 export function makeStore() {
     return configureStore({
-        reducer: { whisperAnswer: whisperAnswerReducer },
+        reducer: { whisperAnswer: whisperAnswerReducer, candidateHunting: candidateHuntingReducer },
         // enhancers: [composeWithDevTools(applyMiddleware(thunkMiddleware))]
     })
 }

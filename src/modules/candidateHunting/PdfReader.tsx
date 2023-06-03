@@ -10,11 +10,16 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/api/pdf.worker'
 interface InputChangeEvent extends InputEvent {
     target: EventTarget & { files: FileList }
 }
-
-const PdfReader = () => {
+type PdfReaderProps = {
+    title?: string
+    content?: string
+    contentEditAction: (arg: any) => void
+}
+const PdfReader = (props: PdfReaderProps) => {
     const [file, setFile] = useState<File | null>(null)
     const [fileLoadStatus, setFileLoadStatus] = useState(0)
     const [showPreview, setShowPreview] = useState(false)
+    const { title = `上传文件` } = props || {}
 
     const onFileChange = (event: InputChangeEvent) => {
         setFileLoadStatus(0)
@@ -32,7 +37,7 @@ const PdfReader = () => {
     return (
         <div id={`pdfreader`}>
             <div className="top_line"></div>
-            <FileUploader onChange={onFileChange} title={`上传简历`} />
+            <FileUploader onChange={onFileChange} title={title} />
             <button
                 type="button"
                 className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
