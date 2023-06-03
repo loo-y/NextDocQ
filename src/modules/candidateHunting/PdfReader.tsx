@@ -18,7 +18,8 @@ const PdfReader = (props: PdfReaderProps) => {
     const [file, setFile] = useState<File | null>(null)
     const [fileLoadStatus, setFileLoadStatus] = useState(0)
     const [showPreview, setShowPreview] = useState(false)
-    const { title = `上传文件` } = props || {}
+    const [showContent, setShowContent] = useState(false)
+    const { title = `上传文件`, content, contentEditAction } = props || {}
 
     const onFileChange = (event: InputChangeEvent) => {
         setFileLoadStatus(0)
@@ -33,25 +34,45 @@ const PdfReader = (props: PdfReaderProps) => {
     const handlePreviewClose = () => {
         setShowPreview(false)
     }
+
     return (
         <div id={`pdfreader`}>
             <div className="top_line"></div>
             <FileUploader onChange={onFileChange} title={title} />
-            <button
-                type="button"
-                className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
-                onClick={() => {
-                    setShowPreview(true)
-                }}
-            >
-                预览
-            </button>
+            <PDFButton text={`预览`} handleClick={() => setShowPreview(true)} />
+            {content ? <PDFButton text={`修改`} handleClick={() => setShowContent(true)} /> : null}
             {file ? (
                 <ModalPreview
                     closeCallback={handlePreviewClose}
                     isOpen={showPreview}
                     title={file.name}
-                    children={<ControlledCarousel file={file} loadCallback={onLoadedSuccess} />}
+                    children={
+                        <ControlledCarousel
+                            file={file}
+                            loadCallback={onLoadedSuccess}
+                            pageCallback={contentEditAction}
+                        />
+                    }
+                />
+            ) : null}
+            {content ? (
+                <ModalPreview
+                    closeCallback={() => setShowContent(false)}
+                    isOpen={showContent}
+                    title={`修改内容`}
+                    children={
+                        <div className="p-4">
+                            <textarea
+                                className="w-full h-96"
+                                value={content}
+                                onChange={e => {
+                                    if (typeof contentEditAction == `function`) {
+                                        contentEditAction(e.target.value)
+                                    }
+                                }}
+                            />
+                        </div>
+                    }
                 />
             ) : null}
         </div>
@@ -113,10 +134,11 @@ const ControlledCarousel = ({
             console.log(`onPageTextLoadSuccess`, textContent)
             if (tempCollection.length >= numPages && numPages > 0) {
                 console.log(`page Load Success`)
-                const longContent = getLongContentFromPage(tempCollection)
-                console.log(`longContent`, longContent)
-                if (typeof pageCallback == `function`) {
-                    pageCallback(tempCollection)
+                const longContentBlock = getLongContentFromPage(tempCollection)
+                console.log(`longContent`, longContentBlock)
+                const { longParagraph } = longContentBlock
+                if (longParagraph && typeof pageCallback == `function`) {
+                    pageCallback(longParagraph)
                 }
             }
         })
@@ -144,6 +166,22 @@ const ControlledCarousel = ({
                 ))}
             </Document>
         </div>
+    )
+}
+
+const PDFButton = ({ text, handleClick }: { text: string; handleClick?: (arg?: any) => void }) => {
+    return (
+        <button
+            type="button"
+            className="inline-block rounded bg-primary-100 px-6 pb-2 pt-2.5 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
+            onClick={() => {
+                if (handleClick) {
+                    handleClick()
+                }
+            }}
+        >
+            {text}
+        </button>
     )
 }
 
