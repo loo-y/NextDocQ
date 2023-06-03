@@ -2,19 +2,18 @@ import React, { useEffect, useState, useCallback } from 'react'
 import _ from 'lodash'
 import { Document, Page, pdfjs } from 'react-pdf' //'react-pdf';
 import ModalPreview from './ModalPreview'
+import {
+    LONG_CONTEXT_TYPE,
+    InputChangeEvent,
+    PdfReaderProps,
+    PAGE_CONTENT_TYPE,
+    PageContentCollection,
+} from './interface'
 import { ChevronDoubleUpIcon } from '@heroicons/react/24/outline'
 import { ArrowUpCircleIcon } from '@heroicons/react/20/solid'
 // 设置 PDF.js 的 workerSrc
 pdfjs.GlobalWorkerOptions.workerSrc = '/api/pdf.worker'
 
-interface InputChangeEvent extends InputEvent {
-    target: EventTarget & { files: FileList }
-}
-type PdfReaderProps = {
-    title?: string
-    content?: string
-    contentEditAction: (arg: any) => void
-}
 const PdfReader = (props: PdfReaderProps) => {
     const [file, setFile] = useState<File | null>(null)
     const [fileLoadStatus, setFileLoadStatus] = useState(0)
@@ -84,16 +83,19 @@ const FileUploader = (props: { title?: string; onChange: (arg: any) => void }) =
         </div>
     )
 }
-const ControlledCarousel = ({ file, loadCallback }: { file: any; loadCallback?: (arg?: any) => void }) => {
-    const [index, setIndex] = useState(0)
-    const [numPages, setNumPages] = useState(null)
-
-    const handleSelect = (selectedIndex, e) => {
-        setIndex(selectedIndex)
-    }
+const ControlledCarousel = ({
+    file,
+    pageCallback,
+    loadCallback,
+}: {
+    file: any
+    pageCallback?: (arg?: any) => void
+    loadCallback?: (arg?: any) => void
+}) => {
+    const [numPages, setNumPages] = useState(0)
 
     const onDocumentLoadSuccess = documentArgs => {
-        console.log(documentArgs)
+        console.log(`onDocumentLoadSuccess`, documentArgs)
         const { numPages } = documentArgs || {}
         setNumPages(numPages)
         if (typeof loadCallback == `function`) {
@@ -101,13 +103,22 @@ const ControlledCarousel = ({ file, loadCallback }: { file: any; loadCallback?: 
         }
     }
 
-    let temp: any = []
+    let tempCollection: PageContentCollection = []
     const onPageTextLoadSuccess = page => {
         page.getTextContent().then(textContent => {
-            temp.push({
+            tempCollection.push({
                 page: page.pageNumber,
                 contentList: textContent?.items,
             })
+            console.log(`onPageTextLoadSuccess`, textContent)
+            if (tempCollection.length >= numPages && numPages > 0) {
+                console.log(`page Load Success`)
+                const longContent = getLongContentFromPage(tempCollection)
+                console.log(`longContent`, longContent)
+                if (typeof pageCallback == `function`) {
+                    pageCallback(tempCollection)
+                }
+            }
         })
     }
 
@@ -134,4 +145,67 @@ const ControlledCarousel = ({ file, loadCallback }: { file: any; loadCallback?: 
             </Document>
         </div>
     )
+}
+
+const getLongContentFromPage = (pageContentCollection: PageContentCollection) => {
+    const endRegs = /[\.\!！。]/
+    let longContextList: Array<LONG_CONTEXT_TYPE> = []
+    _.map(pageContentCollection, pageContent => {
+        const { page, contentList } = pageContent || {}
+        let longContext: LONG_CONTEXT_TYPE = {
+            page,
+            textlines: [],
+        }
+        let thisLine = '',
+            lastTransformString = ''
+        _.map(contentList, (content, contentIndex: number) => {
+            const { transform, str } = content || {}
+            const sameLineTrans = transform
+                .slice(0, 4)
+                .concat([transform[transform.length - 1]])
+                .join(',')
+            if (!lastTransformString || sameLineTrans == lastTransformString) {
+                thisLine += str
+                if (contentIndex == contentList.length - 1) {
+                    longContext.textlines.push(thisLine)
+                }
+            } else {
+                longContext.textlines.push(thisLine)
+                thisLine = str
+            }
+            lastTransformString = sameLineTrans
+        })
+
+        longContextList.push({
+            ...longContext,
+        })
+    })
+
+    // sort by page number
+    longContextList = _.sortBy(longContextList, ['page'])
+
+    // get sentence list
+    let sentence = '',
+        longParagraph = '',
+        flattenSentenceList: any = []
+    _.map(longContextList, longContext => {
+        const { textlines, page } = longContext || {}
+        _.map(textlines, (textline, lineIndex) => {
+            const is_end_index = textline.match(endRegs)?.index || -1
+            if (is_end_index >= 0) {
+                // TODO 根据段落来分隔更好
+                const endSentence = sentence + textline.slice(0, is_end_index + 1)
+                flattenSentenceList.push({
+                    sentence: endSentence,
+                })
+                longParagraph += `\n${endSentence}`
+                sentence = textline.slice(is_end_index + 1)
+            } else {
+                sentence += textline
+            }
+        })
+    })
+
+    console.log(`flattenSentenceList`, flattenSentenceList)
+    return { longContextList, flattenSentenceList, longParagraph }
 }
