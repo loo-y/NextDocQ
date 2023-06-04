@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { RedisGet } from './redis/[action]'
+import { RedisGet } from '../redis/[action]'
 import _ from 'lodash'
 
 const ChatList = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -14,5 +14,9 @@ export default ChatList
 const getChatList = async (memoryChatKey?: string) => {
     if (!memoryChatKey) return []
     const redisChatMessages = await RedisGet(memoryChatKey)
-    return _.isEmpty(redisChatMessages) ? [] : redisChatMessages
+    return _.isEmpty(redisChatMessages)
+        ? []
+        : _.filter(redisChatMessages, chatItem => {
+              return !chatItem?.type || chatItem.type !== 'system'
+          })
 }

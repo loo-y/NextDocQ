@@ -12,7 +12,7 @@ import {
 } from 'langchain/prompts'
 import { ConversationChain } from 'langchain/chains'
 import { RedisGet, RedisSet } from '../redis/[action]'
-import { checkCareer } from '../careerlist'
+import { checkCareer } from '../interview/careerlist'
 
 export default async function AzureInterview(req: NextApiRequest, res: NextApiResponse<any>) {
     let careerType, question, memoryChatKey

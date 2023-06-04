@@ -25,7 +25,7 @@ export const fetchInterviewAnswer = async (interviewParams: InterviewParams): Pr
     }
     let errorInfo = undefined
     try {
-        const response = await fetch('/api/azure/interview', {
+        const response = await fetch('/api/interview/interviewee', {
             ...commonOptions,
             body: JSON.stringify(params),
         })
@@ -74,7 +74,7 @@ export const fetchTokenOrRefresh = async () => {
 export const fetchCareerList = async (isServer?: boolean) => {
     let errorInfo
     try {
-        const url = isServer ? 'http://localhost:3000/api/careerlist' : '/api/careerlist'
+        const url = isServer ? 'http://localhost:3000/api/interview/careerlist' : '/api/interview/careerlist'
         const response = await fetch(url, {
             ...commonOptions,
         })
@@ -123,7 +123,7 @@ export const fetchHello = async () => {
 export const fetchChatList = async ({ memoryChatKey }: { memoryChatKey: string }) => {
     let errorInfo
     try {
-        const response = await fetch('/api/chatlist', {
+        const response = await fetch('/api/interview/chatlist', {
             ...commonOptions,
             body: JSON.stringify({
                 memoryChatKey,

@@ -2,7 +2,7 @@
 // if a career is not in the database, not permitted to access
 
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { RedisGet } from './redis/[action]'
+import { RedisGet } from '../redis/[action]'
 import _ from 'lodash'
 
 const CareerList = async (req: NextApiRequest, res: NextApiResponse) => {
