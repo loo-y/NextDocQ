@@ -1,3 +1,15 @@
+export interface CandidateHuntingState {
+    resumeContent: string
+    JDContent: string
+    ChatQAList: ChatQAItem[]
+}
+
+export interface ChatQAItem {
+    ai: string
+    human: string
+    timestamp: number
+}
+
 export type LONG_CONTEXT_TYPE = { page: number; textlines: Array<string> }
 
 export interface InputChangeEvent extends InputEvent {

@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
+import { CandidateHuntingState } from './interface'
 
-const initialState: any = {
+const initialState: CandidateHuntingState = {
     resumeContent: '',
     JDContent: '',
+    ChatQAList: [],
 }
 export const candidateHuntingSlice = createSlice({
     name: 'candidateHuntingState',

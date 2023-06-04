@@ -37,21 +37,13 @@ const ModalPreview = (props: {
         }
     }, [children, contentEditable])
 
-    const handleEditContent = e => {
-        console.log(`handleEditContent`, e.target.innerHTML)
-        setInnerContent(e.target.innerHTML)
-    }
-
-    const handleClose = (isClose: boolean) => {
-        console.log(`handleClose`, isClose)
-        closeCallback ? closeCallback() : setOpen(isClose)
+    const handleClose = (openStatus: boolean) => {
+        console.log(`handleClose`, openStatus)
+        closeCallback ? closeCallback() : setOpen(openStatus)
     }
 
     const handleConfirm = () => {
-        console.log(`handleConfirm`, children)
-        console.log(`editContent`, editorRef.current.innerText)
-
-        confirmCallback && confirmCallback(editorRef.current.innerText)
+        confirmCallback && confirmCallback((editorRef.current as unknown as HTMLElement)?.innerText)
         closeCallback ? closeCallback() : setOpen(false)
     }
 

@@ -8,8 +8,8 @@ import {
     PdfReaderProps,
     PAGE_CONTENT_TYPE,
     PageContentCollection,
-} from './interface'
-import { ChevronDoubleUpIcon } from '@heroicons/react/24/outline'
+} from '../interface'
+import type { DocumentCallback, PageCallback } from 'react-pdf/dist/cjs/shared/types'
 import { ArrowUpCircleIcon } from '@heroicons/react/20/solid'
 // 设置 PDF.js 的 workerSrc
 pdfjs.GlobalWorkerOptions.workerSrc = '/api/pdf.worker'
@@ -111,7 +111,7 @@ const ControlledCarousel = ({
 }) => {
     const [numPages, setNumPages] = useState(0)
 
-    const onDocumentLoadSuccess = documentArgs => {
+    const onDocumentLoadSuccess = (documentArgs: DocumentCallback) => {
         console.log(`onDocumentLoadSuccess`, documentArgs)
         const { numPages } = documentArgs || {}
         setNumPages(numPages)
@@ -121,7 +121,7 @@ const ControlledCarousel = ({
     }
 
     let tempCollection: PageContentCollection = []
-    const onPageTextLoadSuccess = page => {
+    const onPageTextLoadSuccess = (page: PageCallback) => {
         page.getTextContent().then(textContent => {
             tempCollection.push({
                 page: page.pageNumber,

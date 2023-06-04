@@ -1,6 +1,6 @@
 import React, { useEffect, Fragment, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
-import PdfReader from './PdfReader'
+import PdfReader from './components/PdfReader'
 import { getCandidateHuntingState, updateResumeContent, updateJDContent } from './slice'
 
 const ResumeJobReader = () => {
