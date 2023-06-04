@@ -13,10 +13,12 @@ import { RedisGet, RedisSet } from '../redis/[action]'
 export default async function MemoryChat(props: {
     systemChatText: string
     memoryChatKey: string
-    question: string
-    questionTimestamp: string | number
+    aiResponse?: string
+    humanSay: string
+    noMemory?: boolean
+    chatTimestamp: string | number
 }) {
-    const { systemChatText, memoryChatKey, question, questionTimestamp } = props || {}
+    const { systemChatText, memoryChatKey, humanSay, aiResponse, noMemory, chatTimestamp } = props || {}
 
     try {
         const systemChatMessage = SystemMessagePromptTemplate.fromTemplate(systemChatText)
@@ -44,21 +46,37 @@ export default async function MemoryChat(props: {
         })
 
         const response = await chain.call({
-            input: `${question}`,
+            input: `${humanSay}`,
         })
 
-        const aiAnswer = response?.response
-        if (aiAnswer) {
-            const memoryChatMessages: { ai: string; human: string; timestamp: number }[] = _.concat(redisChatMessages, [
-                {
-                    ai: aiAnswer,
-                    human: question,
-                    timestamp: questionTimestamp,
-                },
-            ])
+        const latestAiResponse = response?.response
+        if (latestAiResponse) {
+            let memoryChatMessages: { ai: string; human: string; timestamp: number }[]
+            if (noMemory) {
+                // not store to redis
+                memoryChatMessages = redisChatMessages
+            } else if (aiResponse) {
+                // store ai response from request in redis
+                memoryChatMessages = _.concat(redisChatMessages, [
+                    {
+                        ai: aiResponse,
+                        human: humanSay,
+                        timestamp: chatTimestamp,
+                    },
+                ])
+            } else {
+                memoryChatMessages = _.concat(redisChatMessages, [
+                    {
+                        ai: latestAiResponse,
+                        human: humanSay,
+                        timestamp: chatTimestamp,
+                    },
+                ])
+            }
+
             await storeChatHistoryToRedis(memoryChatKey, memoryChatMessages)
 
-            return { answer: aiAnswer, memoryChatKey, memoryMessags: memoryChatMessages }
+            return { answer: latestAiResponse, memoryChatKey, memoryMessags: memoryChatMessages }
         }
     } catch (e) {
         console.log(`AzureInterview`, { e })

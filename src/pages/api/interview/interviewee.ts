@@ -31,8 +31,8 @@ export default async function Interviewee(req: NextApiRequest, res: NextApiRespo
         const reuslt = await MemoryChat({
             systemChatText,
             memoryChatKey,
-            question,
-            questionTimestamp,
+            humanSay: question,
+            chatTimestamp: questionTimestamp,
         })
         return res.status(200).json(reuslt)
     }

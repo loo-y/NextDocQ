@@ -37,7 +37,9 @@ export type AnyObj = {
 }
 
 export type InterviewQAParams = {
-    question: string
+    humanSay: string
+    aiResponse?: string
+    noMemory?: boolean // do not show this question in memory
     memoryChatKey?: string
     timestamp?: number | string
 }

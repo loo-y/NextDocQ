@@ -5,18 +5,25 @@ import MemoryChat from '../azure/memoryChat'
 import { RedisGet } from '../redis/[action]'
 
 export default async function Interviewer(req: NextApiRequest, res: NextApiResponse<any>) {
-    let question, memoryChatKey
+    let humanSay,
+        memoryChatKey,
+        noMemory = false,
+        aiResponse
     let questionTimestamp = new Date().getTime()
     if (req.method === 'POST') {
         const body = req?.body || {}
-        question = body.question || question
+        humanSay = body.humanSay || humanSay
         memoryChatKey = body.memoryChatKey || memoryChatKey
         questionTimestamp = body.timestamp || questionTimestamp
+        noMemory = body.noMemory || noMemory
+        aiResponse = body.aiResponse || aiResponse
     } else if (req.method === 'GET') {
         const query = req?.query || {}
-        question = query.q || question
+        humanSay = query.human || humanSay
         memoryChatKey = query.m || memoryChatKey
         questionTimestamp = query.t && Number(query.t) ? Number(query.t) : questionTimestamp
+        noMemory = query.n == '1' || noMemory
+        aiResponse = query.ai || aiResponse
     }
 
     // get systemChatText from redis
@@ -26,8 +33,9 @@ export default async function Interviewer(req: NextApiRequest, res: NextApiRespo
         const reuslt = await MemoryChat({
             systemChatText,
             memoryChatKey,
-            question,
-            questionTimestamp,
+            humanSay: humanSay,
+            chatTimestamp: questionTimestamp,
+            noMemory,
         })
         return res.status(200).json(reuslt)
     }

@@ -19,7 +19,7 @@ const ChatQA = () => {
             setButtonStatus(CHATQA_BUTTON_STATUS.pause)
             setTipsText(`正在录音中，请说话`)
             dispatch(initInterviewAsync(null))
-            dispatch(getAiAnswerAsync(`hi`))
+            dispatch(getAiAnswerAsync({ humanSay: '你好', noMemory: true }))
         } else {
             setButtonStatus(CHATQA_BUTTON_STATUS.start)
             setTipsText(`开始后请耐心等待，每次需等待提问语音结束才可开始回答。`)
@@ -50,23 +50,16 @@ const ChatQA = () => {
                             {({ open }) => (
                                 <>
                                     <Disclosure.Button className="flex w-full justify-between rounded-lg bg-purple-100 px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
-                                        <span>{human}</span>
+                                        <span>{ai}</span>
                                         <ChevronUpIcon
                                             className={`${open ? 'rotate-180 transform' : ''} h-5 w-5 text-purple-500`}
                                         />
                                     </Disclosure.Button>
-                                    {ai ? (
+                                    {human ? (
                                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 overflow-x-scroll">
-                                            {/* {ai} */}
-                                            <ReactMarkdown>{ai}</ReactMarkdown>
+                                            <ReactMarkdown>{human}</ReactMarkdown>
                                         </Disclosure.Panel>
-                                    ) : (
-                                        <div className="mt-2 w-full relative h-6">
-                                            <div className="w-5 h-5 absolute top-0 translate-x-2/4 right-1/2">
-                                                <LoadingSVG />
-                                            </div>
-                                        </div>
-                                    )}
+                                    ) : null}
                                 </>
                             )}
                         </Disclosure>

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AppState, AppThunk } from '../../store'
-import { CandidateHuntingState } from './interface'
+import { CandidateHuntingState, ChatQAItem } from './interface'
 import * as API from './API'
 import { fetchInterviewInit, fetchInterviewQA } from './API'
 import type { AsyncThunk } from '@reduxjs/toolkit'
@@ -68,7 +68,7 @@ const makeApiRequestInQueue = createAsyncThunk(
                 await new Promise((resolve, reject) => {
                     setTimeout(() => {
                         resolve(true)
-                    }, 50)
+                    }, 1000)
                 })
             }
         }
@@ -97,17 +97,18 @@ export const initInterviewAsync = createAsyncThunk(
 
 export const getAiAnswerAsync = createAsyncThunk(
     'whisperAnswerSlice/fetchInterviewQA',
-    async (question: string, { dispatch, getState }: any) => {
+    async (data: { humanSay: string; noMemory?: boolean }, { dispatch, getState }: any) => {
         const candidateHuntingState: CandidateHuntingState = getCandidateHuntingState(getState())
         const memoryChatKey = candidateHuntingState?.memoryChatKey
+        const { humanSay, noMemory } = data
         console.log(`candidateHuntingState, getAiAnswerAsync`, candidateHuntingState)
-        if (!memoryChatKey || !question) return { result: null, status: false }
+        if (!memoryChatKey || !humanSay) return { result: null, status: false }
 
         const timestamp = Date.now()
 
         dispatch(
             makeApiRequestInQueue({
-                apiRequest: fetchInterviewQA.bind(null, { memoryChatKey, question, timestamp }),
+                apiRequest: fetchInterviewQA.bind(null, { memoryChatKey, humanSay, timestamp, noMemory }),
                 asyncThunk: getAiAnswerAsync,
             })
         )
@@ -153,14 +154,21 @@ export const candidateHuntingSlice = createSlice({
             .addCase(getAiAnswerAsync.fulfilled, (state, action) => {
                 const { status, result } = action.payload || {}
                 // @ts-ignore
-                const { memoryMessags } = result || {}
+                const { memoryMessags, answer } = result || {}
+                let newChatQAList: ChatQAItem[] = []
                 if (!_.isEmpty(memoryMessags)) {
-                    state.chatQAList = _.orderBy(
+                    newChatQAList = _.orderBy(
                         _.uniqBy(_.concat(memoryMessags, state.chatQAList), sortUniqKey),
                         [sortUniqKey],
                         ['desc']
                     )
                 }
+                newChatQAList.unshift({
+                    ai: answer,
+                    human: '',
+                    timestamp: Date.now(),
+                })
+                state.chatQAList = newChatQAList
             })
     },
 })
