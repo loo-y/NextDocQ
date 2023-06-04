@@ -11,6 +11,7 @@ import {
 import { ConversationChain } from 'langchain/chains'
 import { RedisGet, RedisSet } from '../redis/[action]'
 export default async function MemoryChat(props: {
+    isAiAsk?: boolean
     systemChatText: string
     memoryChatKey: string
     aiResponse?: string
@@ -18,7 +19,7 @@ export default async function MemoryChat(props: {
     noMemory?: boolean
     chatTimestamp: string | number
 }) {
-    const { systemChatText, memoryChatKey, humanSay, aiResponse, noMemory, chatTimestamp } = props || {}
+    const { isAiAsk, systemChatText, memoryChatKey, humanSay, aiResponse, noMemory, chatTimestamp } = props || {}
 
     try {
         const systemChatMessage = SystemMessagePromptTemplate.fromTemplate(systemChatText)
@@ -34,7 +35,7 @@ export default async function MemoryChat(props: {
         let memory = new BufferMemory({ returnMessages: true, memoryKey: memoryHistory })
         // try to restore memory chatHistory from redis
         if (memoryChatKey) {
-            const infoFromRedis = await updateChatHistoryFromRedis(memoryChatKey, memory)
+            const infoFromRedis = await updateChatHistoryFromRedis(memoryChatKey, memory, isAiAsk)
             memory = infoFromRedis.memory
             redisChatMessages = infoFromRedis.redisChatMessages || redisChatMessages
         }
@@ -101,20 +102,25 @@ const storeChatHistoryToRedis = async (
     await RedisSet(memoryChatKey, redisChatMessages)
 }
 
-const updateChatHistoryFromRedis = async (memoryChatKey: string, memory: BufferMemory) => {
+const updateChatHistoryFromRedis = async (memoryChatKey: string, memory: BufferMemory, isAiAsk?: boolean) => {
     if (!memoryChatKey) return { memory }
 
     let redisChatMessages = await RedisGet(memoryChatKey)
-    redisChatMessages = _.filter(redisChatMessages || [], chatItem => {
-        return !chatItem?.type || chatItem.type !== 'system'
-    })
+    // redisChatMessages = _.filter(redisChatMessages || [], chatItem => {
+    //     return !chatItem?.type || chatItem.type !== 'system'
+    // })
     if (_.isEmpty(redisChatMessages)) return { memory }
 
     _.map(redisChatMessages, redisChatMessage => {
-        const { ai, human } = redisChatMessage || {}
-        if (ai && human) {
-            memory.chatHistory.addUserMessage(human)
-            memory.chatHistory.addAIChatMessage(ai)
+        const { ai, human, type } = redisChatMessage || {}
+        if (ai && human && type !== 'system') {
+            if (isAiAsk) {
+                memory.chatHistory.addAIChatMessage(ai)
+                memory.chatHistory.addUserMessage(human)
+            } else {
+                memory.chatHistory.addUserMessage(human)
+                memory.chatHistory.addAIChatMessage(ai)
+            }
         }
     })
 

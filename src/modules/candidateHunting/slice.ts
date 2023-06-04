@@ -163,11 +163,14 @@ export const candidateHuntingSlice = createSlice({
                         ['desc']
                     )
                 }
-                newChatQAList.unshift({
-                    ai: answer,
-                    human: '',
-                    timestamp: Date.now(),
-                })
+                if (answer) {
+                    newChatQAList.unshift({
+                        ai: answer,
+                        human: '',
+                        timestamp: Date.now(),
+                    })
+                }
+
                 state.chatQAList = newChatQAList
             })
     },

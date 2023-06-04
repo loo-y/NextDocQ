@@ -34,7 +34,7 @@ const modelGPT35Turbo = new OpenAI({
 modelGPT35Turbo.bestOf = undefined
 
 const modelChatGPT35Turbo = new ChatOpenAI({
-    temperature: 0, // stable
+    temperature: 0.2, // stable
     topP: 0.3, // some stable
     ...params_GPT35Turbo,
     maxTokens: 100,

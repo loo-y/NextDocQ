@@ -31,9 +31,11 @@ export default async function Interviewer(req: NextApiRequest, res: NextApiRespo
 
     if (systemChatText) {
         const reuslt = await MemoryChat({
+            isAiAsk: true, // ai ask and human answer
             systemChatText,
             memoryChatKey,
             humanSay: humanSay,
+            aiResponse,
             chatTimestamp: questionTimestamp,
             noMemory,
         })
