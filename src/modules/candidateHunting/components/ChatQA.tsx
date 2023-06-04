@@ -1,20 +1,41 @@
 import React, { useEffect, Fragment, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/hooks'
-import { getCandidateHuntingState } from '../slice'
+import { getCandidateHuntingState, initInterviewAsync, getAiAnswerAsync } from '../slice'
 import { Disclosure } from '@headlessui/react'
-import { ChevronUpIcon } from '@heroicons/react/20/solid'
+import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/20/solid'
 import _ from 'lodash'
 import ReactMarkdown from 'react-markdown'
+import { CHATQA_BUTTON_STATUS } from '../interface'
 
 const ChatQA = () => {
     const dispatch = useAppDispatch()
     const state = useAppSelector(getCandidateHuntingState)
-    const { ChatQAList } = state
-
-    const showList = ChatQAList
-
+    const { chatQAList, resumeContent, JDContent } = state
+    const [tipsText, setTipsText] = useState(`开始后请耐心等待，每次需等待提问语音结束才可开始回答。`)
+    const [buttonStatus, setButtonStatus] = useState(CHATQA_BUTTON_STATUS.start)
+    const showList = chatQAList
+    const handleQABtn = () => {
+        if (buttonStatus == CHATQA_BUTTON_STATUS.start) {
+            setButtonStatus(CHATQA_BUTTON_STATUS.pause)
+            setTipsText(`正在录音中，请说话`)
+            dispatch(initInterviewAsync(null))
+            dispatch(getAiAnswerAsync(`hi`))
+        } else {
+            setButtonStatus(CHATQA_BUTTON_STATUS.start)
+            setTipsText(`开始后请耐心等待，每次需等待提问语音结束才可开始回答。`)
+        }
+    }
+    if (!resumeContent || !JDContent) return null
     return (
         <div className="">
+            <button
+                type="button"
+                className={`min-w-[3rem] inline-flex w-full justify-center rounded-md bg-zinc-700 px-3 py-1 text-m font-semibold text-white shadow-sm hover:bg-zinc-800 sm:ml-3 sm:w-auto`}
+                onClick={handleQABtn}
+            >
+                {buttonStatus}
+            </button>
+            <Tips tipsText={tipsText} />
             {_.map(showList, (item, index) => {
                 const { ai, human, timestamp } = item || {}
                 return (
@@ -73,5 +94,17 @@ const LoadingSVG = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
         </svg>
+    )
+}
+
+const Tips = ({ tipsText }: { tipsText: string }) => {
+    if (!tipsText) return null
+    return (
+        <div className="inline-block relative ml-2">
+            <div className="absolute w-6 h-6 mr-2 left-0">
+                <InformationCircleIcon className="h-6 w-6    text-gray-400" />
+            </div>
+            <div className="text-gray-400 text-m ml-6">{tipsText}</div>
+        </div>
     )
 }

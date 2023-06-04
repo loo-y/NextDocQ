@@ -19,13 +19,17 @@ const PdfReader = (props: PdfReaderProps) => {
     const [fileLoadStatus, setFileLoadStatus] = useState(0)
     const [showPreview, setShowPreview] = useState(false)
     const [showContent, setShowContent] = useState(false)
-    const { title = `上传文件`, content, contentEditAction } = props || {}
+    const { title = `上传文件`, content, contentEditAction, className } = props || {}
 
     const onFileChange = (event: InputChangeEvent) => {
         setFileLoadStatus(0)
         const newFile = event?.target?.files[0]
         setShowPreview(true)
-        if (newFile) setFile(newFile)
+        if (newFile) {
+            setFile(newFile)
+            // 清空content
+            contentEditAction('')
+        }
     }
 
     const onLoadedSuccess = () => {
@@ -36,10 +40,10 @@ const PdfReader = (props: PdfReaderProps) => {
     }
 
     return (
-        <div className="pdfreader inline-block relative">
+        <div className={`${className || ''} pdfreader inline-block relative`}>
             <div className="top_line"></div>
             <FileUploader onChange={onFileChange} title={title} />
-            <div className="absolute right-2 top-4">
+            <div className="absolute right-0 top-0">
                 {file ? <PDFButton text={`预览`} handleClick={() => setShowPreview(true)} extraClass={''} /> : null}
                 {content ? <PDFButton text={`修改`} handleClick={() => setShowContent(true)} /> : null}
             </div>
@@ -52,7 +56,9 @@ const PdfReader = (props: PdfReaderProps) => {
                         <ControlledCarousel
                             file={file}
                             loadCallback={onLoadedSuccess}
-                            pageCallback={contentEditAction}
+                            pageCallback={newContent => {
+                                !content && contentEditAction(newContent)
+                            }}
                         />
                     }
                 />
@@ -80,7 +86,7 @@ export default PdfReader
 const FileUploader = (props: { title?: string; onChange: (arg: any) => void }) => {
     const { onChange, title } = props || {}
     return (
-        <div className="m-5 w-[28rem] inline-block mr-2">
+        <div className="my-1 w-full inline-block">
             {title ? (
                 <label
                     className="block ml-1 mb-2 text-sm font-medium text-gray-900 dark:text-white cursor-pointer"
@@ -96,6 +102,7 @@ const FileUploader = (props: { title?: string; onChange: (arg: any) => void }) =
                 id="pdf_uploader_input"
                 type="file"
                 onChange={onChange}
+                accept="application/pdf"
             />
         </div>
     )

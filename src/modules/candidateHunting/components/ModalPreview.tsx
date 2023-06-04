@@ -86,16 +86,18 @@ const ModalPreview = (props: {
                                                 </Dialog.Title>
                                             ) : null}
 
-                                            <div className="mt-2 relative max-h-[70vh] max-w-full min-w-[50vw]">
+                                            <div className="mt-2 relative max-h-[70vh] max-w-full">
                                                 {contentEditable ? (
-                                                    <div className="p-4 w-full h-full bg-slate-300 min-h-[50vh]">
-                                                        <div
-                                                            contentEditable={true}
-                                                            ref={editorRef}
-                                                            // onInput={handleEditContent}
-                                                            className={'outline-none w-full h-full  p-4'}
-                                                            dangerouslySetInnerHTML={{ __html: innerContent }}
-                                                        ></div>
+                                                    <div className="p-4 w-full h-full bg-slate-600 text-zinc-200 min-w-[50vw]  min-h-[50vh]">
+                                                        <pre>
+                                                            <div
+                                                                contentEditable={true}
+                                                                ref={editorRef}
+                                                                // onInput={handleEditContent}
+                                                                className={'outline-none w-full h-full  p-4'}
+                                                                dangerouslySetInnerHTML={{ __html: innerContent }}
+                                                            ></div>
+                                                        </pre>
                                                     </div>
                                                 ) : (
                                                     children

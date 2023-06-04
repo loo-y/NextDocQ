@@ -1,7 +1,10 @@
 export interface CandidateHuntingState {
     resumeContent: string
     JDContent: string
-    ChatQAList: ChatQAItem[]
+    memoryChatKey?: string
+    chatQAList: ChatQAItem[]
+
+    requestInQueueFetching: boolean
 }
 
 export interface ChatQAItem {
@@ -18,6 +21,7 @@ export interface InputChangeEvent extends InputEvent {
 export type PdfReaderProps = {
     title?: string
     content?: string
+    className?: string
     contentEditAction: (arg: any) => void
 }
 
@@ -36,4 +40,16 @@ export type InterviewQAParams = {
     question: string
     memoryChatKey?: string
     timestamp?: number | string
+}
+
+export type InterviewInitParams = {
+    resumeContent?: string
+    JDContent?: string
+    systemChatText?: string
+}
+
+export enum CHATQA_BUTTON_STATUS {
+    start = 'start',
+    stop = 'stop',
+    pause = 'pause',
 }

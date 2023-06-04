@@ -1,4 +1,4 @@
-import { AnyObj, InterviewQAParams } from './interface'
+import { AnyObj, InterviewQAParams, InterviewInitParams } from './interface'
 import Cookie from 'universal-cookie'
 import _ from 'lodash'
 
@@ -9,9 +9,12 @@ const commonOptions = {
     },
 }
 
-export const fetchInterviewInit = async (systemText: string): Promise<AnyObj> => {
+export const fetchInterviewInit = async (initParams: InterviewInitParams): Promise<AnyObj> => {
+    const { systemChatText, JDContent, resumeContent } = initParams || {}
     const params = {
-        systemText,
+        systemText: systemChatText,
+        JDContent,
+        resumeContent,
     }
     let errorInfo = undefined
     try {
@@ -20,9 +23,10 @@ export const fetchInterviewInit = async (systemText: string): Promise<AnyObj> =>
             body: JSON.stringify(params),
         })
         const result = await response.json()
+        const { isSuccess, memoryChatKey } = result || {}
         return {
-            result,
-            status: true,
+            memoryChatKey,
+            status: isSuccess,
         }
     } catch (e) {
         console.log(`fetchInterviewInit`, { error: e })
