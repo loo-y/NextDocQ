@@ -87,7 +87,7 @@ const updateChatHistoryFromRedis = async (memoryChatKey: string, memory: BufferM
     if (!memoryChatKey) return { memory }
 
     let redisChatMessages = await RedisGet(memoryChatKey)
-    redisChatMessages = _.filter(redisChatMessages, chatItem => {
+    redisChatMessages = _.filter(redisChatMessages || [], chatItem => {
         return !chatItem?.type || chatItem.type !== 'system'
     })
     if (_.isEmpty(redisChatMessages)) return { memory }

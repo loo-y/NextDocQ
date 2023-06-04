@@ -27,3 +27,13 @@ export type PAGE_CONTENT_TYPE = {
 }
 
 export type PageContentCollection = PAGE_CONTENT_TYPE[]
+
+export type AnyObj = {
+    [key: string]: any
+}
+
+export type InterviewQAParams = {
+    question: string
+    memoryChatKey?: string
+    timestamp?: number | string
+}
