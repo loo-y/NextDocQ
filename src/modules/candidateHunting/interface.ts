@@ -1,3 +1,8 @@
+export interface SpeechToken {
+    authToken: string
+    region: string
+}
+
 export interface CandidateHuntingState {
     resumeContent: string
     JDContent: string
