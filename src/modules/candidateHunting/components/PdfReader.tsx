@@ -238,9 +238,11 @@ const getLongContentFromPage = (pageContentCollection: PageContentCollection) =>
     // get sentence list
     let sentence = '',
         longParagraph = '',
-        flattenSentenceList: any = []
+        pageList: number[] = [],
+        flattenSentenceList: { sentence: string; pageList: number[] }[] = []
     _.map(longContextList, longContext => {
         const { textlines, page } = longContext || {}
+        pageList.push(page)
         _.map(textlines, (textline, lineIndex) => {
             const is_end_index = textline.match(endRegs)?.index || -1
             if (is_end_index >= 0) {
@@ -248,14 +250,26 @@ const getLongContentFromPage = (pageContentCollection: PageContentCollection) =>
                 const endSentence = sentence + textline.slice(0, is_end_index + 1)
                 flattenSentenceList.push({
                     sentence: endSentence,
+                    pageList: [...pageList],
                 })
                 longParagraph += `\n${endSentence}`
                 sentence = textline.slice(is_end_index + 1)
+                // pageList 重新计算
+                // 如果是当页的最后一行，而且句子在此行末尾结束，下一句为新的一页，则不要把当页加入pageList。
+                pageList = lineIndex + 1 == textlines.length && is_end_index + 1 == textline.length ? [] : [page]
             } else {
                 sentence += textline
             }
         })
     })
+
+    // 补上最后一句
+    if (sentence.length) {
+        flattenSentenceList.push({
+            sentence,
+            pageList: [...pageList],
+        })
+    }
 
     console.log(`flattenSentenceList`, flattenSentenceList)
     return { longContextList, flattenSentenceList, longParagraph }
